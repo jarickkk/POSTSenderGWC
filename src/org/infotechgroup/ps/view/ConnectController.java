@@ -38,7 +38,7 @@ public class ConnectController {
         if(buffer.isEmpty())
             buffer = username.getPromptText();
         g.setUSERNAME(buffer);
-        
+
         buffer = password.getText();
         if(buffer.isEmpty())
             buffer = password.getPromptText();
