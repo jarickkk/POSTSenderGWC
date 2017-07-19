@@ -1,6 +1,5 @@
 package org.infotechgroup.ps.model;
 
-import com.sun.rowset.internal.Row;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.io.*;
@@ -8,6 +7,8 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,9 +24,9 @@ public class GeoConnect {
     private static GeoConnect geoConnectSingleton;
     private List<String> cookies;
     private HttpURLConnection connection;
-    private static int counter = 0;
     private static String GWCLink;
-    private static String ListOfLayersGWC;
+    private static String GSREST;
+    private static String GWCREST;
     private static String USERNAME;
     private static String PASSWORD;
     private static String HOST;
@@ -34,6 +35,8 @@ public class GeoConnect {
     private static boolean layersAvailable = false;
     private static ObservableList<Layer> layerstList;
     private static ObservableList<TaskOnGWC> tasksList;
+    private static ArrayList<String> listOfGroupsNames = new ArrayList<>();
+    private static ArrayList<String> listOfLayersNames = new ArrayList<>();
 
     private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36";
 
@@ -48,6 +51,10 @@ public class GeoConnect {
         System.out.println("Connecting");
     }
 
+    public boolean disconnect(){
+        return true;
+    }
+
     public String connect() throws Exception {
         CookieHandler.setDefault(new CookieManager());
 
@@ -55,12 +62,12 @@ public class GeoConnect {
         String URLink = HOST + "/geoserver/web/";                                                                            //URLink для получения первичного cookies  с сессией
         String loginGS = HOST + "/geoserver/j_spring_security_check";                                                       //для логина
         GWCLink = HOST + "/geoserver/gwc/rest/seed/";
-        ListOfLayersGWC = HOST + "/geoserver/gwc/demo";
+        GSREST = HOST + "/geoserver/rest";
+        GWCREST = HOST + "/geoserver/gwc/rest";
 
         String postParams = this.getFormParams();                                                                                           //устанавливаем параметры для авторизации
 
         System.out.println(HOST + "\n" + URLink + "\n" + GWCLink);
-
 
         String result = "No connection";
 
@@ -70,16 +77,12 @@ public class GeoConnect {
         if(layersAvailable)
             result = "Connected to " + HOST;
 
-
         String layersLink = HOST + "/geoserver/web/wicket/bookmarkable/org.geoserver.web.data.layer.LayerPage";
         String res = this.getPageAuth(layersLink);                                                                   //метод GET после авторизации
-        System.out.println(res);
+        //System.out.println(res);
 
         return result;
-
-
     }
-
 
     boolean setLayerToCache( Task task) throws Exception{
         URL link = new URL(GWCLink + task.getLayerName());
@@ -95,7 +98,6 @@ public class GeoConnect {
         connection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
         connection.setRequestProperty("Accept-Encoding", "gzip, deflate, br");
         connection.setRequestProperty("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4");
-
         connection.setRequestProperty("Cache-Control", "max-age=0" );
         connection.setRequestProperty("Connection", "keep-alive");
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -111,7 +113,6 @@ public class GeoConnect {
         connection.setDoOutput(true);
         connection.setDoInput(true);
 
-        // Отправляем POST
         DataOutputStream connectionOut = new DataOutputStream(connection.getOutputStream());
         System.out.println(postParams);
         connectionOut.writeBytes(postParams);
@@ -123,8 +124,8 @@ public class GeoConnect {
         return true;
     }               //POST
 
-    public void killAll(String layerName) throws Exception{
-        URL link = new URL(GWCLink + layerName);
+    public void killAll() throws Exception{
+        URL link = new URL(HOST + "/geoserver/gwc/rest/seed");
         String postParams = "kill_all=all";
         System.out.println(link.toString());
         connection.setConnectTimeout(TIMEOUT);
@@ -161,10 +162,12 @@ public class GeoConnect {
 
         int responseCode = connection.getResponseCode();
         System.out.println(responseCode);
-    }  //POST
+    }  //kill all tasks
 
     public void killTask(String ID) throws Exception{
         URL link = new URL(GWCLink );
+        if(ID.equals("Non"))
+            return;
         String postParams = "kill_thread=1&thread_id="+ID;
         System.out.println(link.toString());
         connection.setConnectTimeout(TIMEOUT);
@@ -362,8 +365,8 @@ public class GeoConnect {
         builder.append("&format=").append(task.getFormat().replaceAll("/", "%2F"));
         builder.append("&zoomStart=").append(task.getZoomStart());
         builder.append("&zoomStop=").append(task.getZoomStop());
-        if(task.getModPorametr() != null)
-            builder.append("&parameter_STYLES=").append(task.getModPorametr());
+        if(!task.getModParameter().equals(""))
+            builder.append("&parameter_STYLES=").append(task.getModParameter());
         builder.append("&minX=");
         if(task.getMinX() != null) builder.append(task.getMinX() );
         builder.append("&minY=");
@@ -372,37 +375,151 @@ public class GeoConnect {
         if(task.getMaxX() != null) builder.append(task.getMaxX());
         builder.append("&maxY=");
         if(task.getMaxY() != null) builder.append(task.getMaxY());
-        return builder.toString();
+        return builder.toString().trim();
     }
 
-    private ObservableList parseForLayersInGWC(String res){
+    private ObservableList<Layer> fillListsOfLayersGroups(){
         ObservableList<Layer> resultList = FXCollections.observableArrayList();
 
+        if(listOfGroupsNames.size() > 0){
+            if(listOfGroupsNames.get(0).equals("No Groups"))
+                System.out.println("NO GROUPS");
+            else {
+                resultList.add(new Layer("GROUPS:"));
+                for (String s : listOfGroupsNames) {
+                    Layer newL = new Layer(s);
+                    setUpLayersFields(newL);
+                    resultList.add(newL);
+                }
+                resultList.add(new Layer("LAYERS:"));
+            }
+        }
+        if(listOfLayersNames.size() > 0){
+
+            for(String s : listOfLayersNames){
+                boolean ok = true;
+                for(String g : listOfGroupsNames){
+                    if(s.equals(g)) ok = false;                   // show layer in Layers list if it NOT IN Groups list
+                }
+                if(ok) {
+                    Layer newL = new Layer(s);
+                    setUpLayersFields(newL);
+                    resultList.add(newL);
+                }
+            }
+        }
+        return resultList;
+    }
+
+    private ArrayList<String> parseForGroups(String res){
+        ArrayList<String> newList = new ArrayList<>();
         Document html = Jsoup.parse(res);
 
-        Elements tbodyS = html.select("tbody");
-        if(tbodyS.size() <= 0) {
-            resultList.add(new Layer("No available layers!"));
+        Elements liS = html.select("li");
+        if(liS.size() <= 0) {
+            newList.add("No available groups");
             layersAvailable = false;
         }else{
-            Element tbody = tbodyS.get(0);
-            Elements rows = tbody.select("tr");
-            if(rows.size() > 1){
-                for(int zz = 0; zz < (rows.size()-1)/3; zz++){
-                    resultList.add(new Layer(rows.get(1+(zz*3)).select("strong").text().trim()));
-                    System.out.println(resultList.get(zz).getLayerName());
-                }
-                layersAvailable = true;
-
-            }else{
-                resultList.add(new Layer("No available layers!"));
-                layersAvailable = false;
+            for(int zz = 0; zz < liS.size(); zz++){
+                String string = liS.get(zz).text().trim();
+                System.out.println(string);
+                newList.add(string);
             }
+            layersAvailable = true;
 
         }
+        return newList;
+    }
 
+    private ArrayList<String> parseForLayers(String res){
+        ArrayList<String> newList = new ArrayList<>();
+        Document html = Jsoup.parse(res);
 
-        return resultList;
+        Elements nameS = html.select("name");
+        if(nameS.size() <= 0) {
+            newList.add("No available layers");
+            layersAvailable = false;
+        }else{
+            for(int zz = 0; zz < nameS.size(); zz++){
+                String string = nameS.get(zz).text().trim();
+                System.out.println(string);
+                newList.add(string);
+            }
+            layersAvailable = true;
+        }
+        return newList;
+    }
+
+    private void setUpLayersFields(Layer l) {
+        String layerURL = HOST + "/geoserver/gwc/rest/seed/" + l.getLayerName();
+        try {
+            String pageResult = getPageAuth(layerURL);
+
+            //System.out.println(pageResult);
+            Document html = Jsoup.parse(pageResult);
+
+            Elements tbodyS = html.select("tbody");
+            Elements rows;
+            if(tbodyS.size() <= 0)
+                return;
+            Element tbody = tbodyS.get(1);
+
+            if(tbody.select("tr").select("td").first().text().equals("Id"))
+                tbody = tbodyS.get(2);
+            rows = tbody.select("tr");
+
+            for (int zz = 0; zz < 6; zz++) {
+                ObservableList<String> resultList = FXCollections.observableArrayList();
+                Elements options = rows.get(zz).select("select").select("option");
+                for(Element option : options){
+                    resultList.add(option.val());
+                }
+                switch (zz){
+                    case 0 : l.setNumberOfTasks(resultList);
+                        break;
+                    case 1 : l.setTypeOfOperation(resultList);
+                        break;
+                    case 2 : l.setGridSet(resultList);
+                        break;
+                    case 3 : l.setFormat(resultList);
+                        break;
+                    case 4 : l.setZoomStart(resultList);
+                        break;
+                    case 5 : l.setZoomStop(resultList);
+                }
+            }
+            if (rows.size() > 8) {
+                ObservableList<String> resultList = FXCollections.observableArrayList();
+                Elements options = rows.get(6).select("select").select("option");
+                for(Element option : options){
+                    resultList.add(option.val());
+
+                }
+                l.setParameter(resultList);
+            }
+            Elements ulS = html.select("ul");
+            if(ulS.size() >= 3){
+                Elements liS = ulS.get(2).select("li");
+                HashMap<String, ArrayList<String>> hash = new HashMap<>();
+                for(int i = 0 ; i < liS.size(); i++){
+                    String s = "";
+                    ArrayList<String> list = new ArrayList<>();
+                    String[] arr = liS.get(i).text().split(":");
+
+                    s+=arr[0]+":"+arr[1];
+                    arr = arr[2].trim().split(",");
+                    for(int yy = 0; yy < 4; yy++){
+                        list.add(arr[yy]);
+                    }
+                    hash.put(s, list);
+                }
+                l.setMaxBoundsText(hash);
+            }
+            l.setFilled(true);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private ObservableList parseForTasksInGWC(String res){
@@ -420,10 +537,14 @@ public class GeoConnect {
                 resultList.add(new TaskOnGWC("Non","No available tasks!"));
             else {
                 if (rows.size() > 1) {
-                    for (int zz = 0; zz < (rows.size() - 1) / 2; zz++) {
-                        Elements td = rows.get(1 + (zz * 2)).select("td");
-                        resultList.add(new TaskOnGWC(td.get(0).text().trim(), td.get(1).text().trim()));
-                        System.out.println(resultList.get(zz).getTaskName());
+                    for(int zz = 1; zz < rows.size();zz+=2){
+                        Elements tdS = rows.get(zz).select("td");
+                        if(tdS.size() > 9){
+                            TaskOnGWC t = new TaskOnGWC(tdS.get(0).text(), tdS.get(1).text(), tdS.get(2).text(), tdS.get(3).text(), tdS.get(4).text(), tdS.get(5).text(), tdS.get(6).text(), tdS.get(7).text(), tdS.get(8).text());
+                            resultList.add(t);
+                        }else{
+                            System.out.println("ERROR IN TASK TABLE PARSING!");
+                        }
                     }
 
                 } else {
@@ -444,11 +565,11 @@ public class GeoConnect {
     public void fillTasksList(){
         tasksList = FXCollections.observableArrayList();
         try {
-            if (!layerstList.isEmpty()) {
-                String tasksURL = HOST + "/geoserver/gwc/rest/seed/" + layerstList.get(0).getLayerName();
+            if (!listOfLayersNames.isEmpty()) {
+                String tasksURL = HOST + "/geoserver/gwc/rest/seed/" + listOfLayersNames.get(0);
                 String postParams = "list=all";
                 String result = sendTaskPost(tasksURL, postParams);
-                System.out.println(result);
+                //System.out.println(result);
                 tasksList = parseForTasksInGWC(result);
             }
         }catch (Exception e){
@@ -460,17 +581,16 @@ public class GeoConnect {
 
     private void fillLayersList(){
        layerstList = FXCollections.observableArrayList();
-
         try {
-           layerstList =  parseForLayersInGWC(getPageAuth(ListOfLayersGWC));
-
+            listOfGroupsNames = parseForGroups(getPageAuth(GSREST+"/layergroups"));
+            listOfLayersNames = parseForLayers(getPageAuth(GWCREST + "/layers"));
+            layerstList = fillListsOfLayersGroups();
         }catch (Exception e){
             e.printStackTrace();
         }
-
     }
 
-    public ObservableList getLayersList(){
+    public ObservableList<Layer> getLayersList(){
         return layerstList;
     }
 

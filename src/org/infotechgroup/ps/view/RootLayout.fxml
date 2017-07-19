@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="525.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.infotechgroup.ps.view.RootController">
+<BorderPane maxHeight="5000.0" maxWidth="5000.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="625.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.infotechgroup.ps.view.RootController">
    <top>
-      <MenuBar BorderPane.alignment="CENTER">
-        <menus>
-          <Menu mnemonicParsing="false" text="Connect">
-            <items>
-              <MenuItem mnemonicParsing="false" onAction="#connectController" text="Connect to host" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Layers">
-            <items>
-              <MenuItem mnemonicParsing="false" onAction="#layersController" text="Create task" />
-                  <MenuItem mnemonicParsing="false" onAction="#layersManualController" text="Create task manually" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Tasks">
-            <items>
-              <MenuItem mnemonicParsing="false" onAction="#tasksController" text="List of tasks" />
-            </items>
-          </Menu>
-        </menus>
-      </MenuBar>
+      <TabPane maxHeight="28.0" prefHeight="28.0" prefWidth="800.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+        <tabs>
+          <Tab closable="false" onSelectionChanged="#connectController" text="Connect">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="800.0" />
+            </content>
+          </Tab>
+          <Tab closable="false" onSelectionChanged="#layersController" text="Create Task">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+            </content>
+          </Tab>
+            <Tab closable="false" onSelectionChanged="#tasksController" text="Tasks">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              </content>
+            </Tab>
+        </tabs>
+      </TabPane>
    </top>
 </BorderPane>

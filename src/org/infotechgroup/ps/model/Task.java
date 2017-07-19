@@ -12,14 +12,13 @@ public class Task {
     private String format;
     private String zoomStart;
     private String zoomStop;
-    private String modParametr;
-    private Float minX, minY, maxX, maxY;
+    private String modParameter;
+    private Double minX, minY, maxX, maxY;
     private GeoConnect geoConnect;
 
     public Task (GeoConnect geo) {
         try {
             this.geoConnect = geo;
-
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -28,11 +27,9 @@ public class Task {
     public void send(){
         try {
             geoConnect.setLayerToCache(this);
-
         }catch (Exception e){
             e.printStackTrace();
         }
-
     }
 
     public String getLayerName() {
@@ -63,23 +60,23 @@ public class Task {
         return zoomStop;
     }
 
-    public String getModPorametr() {
-        return modParametr;
+    public String getModParameter() {
+        return modParameter;
     }
 
-    public Float getMinX() {
+    public Double getMinX() {
         return minX;
     }
 
-    public Float getMinY() {
+    public Double getMinY() {
         return minY;
     }
 
-    public Float getMaxX() {
+    public Double getMaxX() {
         return maxX;
     }
 
-    public Float getMaxY() {
+    public Double getMaxY() {
         return maxY;
     }
 
@@ -111,23 +108,23 @@ public class Task {
         this.zoomStop = zoomStop;
     }
 
-    public void setModParametr(String modParametr) {
-        this.modParametr = modParametr;
+    public void setModParameter(String modParameter) {
+        this.modParameter = modParameter;
     }
 
-    public void setMinX(Float minX) {
+    public void setMinX(Double minX) {
         this.minX = minX;
     }
 
-    public void setMinY(Float minY) {
+    public void setMinY(Double minY) {
         this.minY = minY;
     }
 
-    public void setMaxX(Float maxX) {
+    public void setMaxX(Double maxX) {
         this.maxX = maxX;
     }
 
-    public void setMaxY(Float maxY) {
+    public void setMaxY(Double maxY) {
         this.maxY = maxY;
     }
 

@@ -13,14 +13,11 @@ public class RootController {
 
     @FXML
     private void connectController(){
-        mainApp.showConnectOverview();
+        if(mainApp != null)                           //FIXED: tabPane call this method after RootController creating, mainApp is null at that moment
+            mainApp.showConnectOverview();
     }
     @FXML
     private void layersController(){mainApp.showLayersOverview();}
-    @FXML
-    private void layersManualController(){
-        mainApp.showLayersManualOverview();
-    }
     @FXML
     private void tasksController(){mainApp.showTasksOverview();}
 
@@ -33,7 +30,6 @@ public class RootController {
 
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
-
-       connectController();
+        connectController();
     }
 }
