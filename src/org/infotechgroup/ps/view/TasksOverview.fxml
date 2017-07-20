@@ -49,10 +49,10 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="ID" layoutX="39.0" layoutY="53.0" prefWidth="150.0" AnchorPane.leftAnchor="40.0" AnchorPane.topAnchor="50.0" />
-                  <Button layoutX="201.0" layoutY="53.0" mnemonicParsing="false" onAction="#kill" prefWidth="50.0" text="Kill" AnchorPane.leftAnchor="200.0" AnchorPane.topAnchor="50.0" />
-                  <Button layoutX="13.0" layoutY="98.0" mnemonicParsing="false" onAction="#refresh" prefWidth="90.0" text="Refresh list" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="100.0" />
-                  <Button layoutX="200.0" layoutY="98.0" mnemonicParsing="false" onAction="#killAll" prefWidth="50.0" text="Kill all" AnchorPane.leftAnchor="200.0" AnchorPane.topAnchor="100.0" />
+                  <TextField fx:id="ID" layoutX="39.0" layoutY="53.0" minWidth="-Infinity" prefWidth="150.0" AnchorPane.leftAnchor="40.0" AnchorPane.topAnchor="50.0" />
+                  <Button layoutX="201.0" layoutY="53.0" minWidth="80.0" mnemonicParsing="false" onAction="#kill" prefWidth="80.0" text="Kill" AnchorPane.leftAnchor="200.0" AnchorPane.topAnchor="50.0" />
+                  <Button layoutX="13.0" layoutY="98.0" minWidth="90.0" mnemonicParsing="false" onAction="#refresh" prefWidth="90.0" text="Refresh list" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="100.0" />
+                  <Button layoutX="200.0" layoutY="98.0" minWidth="80.0" mnemonicParsing="false" onAction="#killAll" prefWidth="80.0" text="Kill all" AnchorPane.leftAnchor="200.0" AnchorPane.topAnchor="100.0" />
                </children>
             </AnchorPane>
          </items>

@@ -7,9 +7,9 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="120.0" prefWidth="250.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.infotechgroup.ps.view.DialogController">
    <children>
-      <Button defaultButton="true" layoutX="34.0" layoutY="71.0" mnemonicParsing="false" onAction="#handleOk" prefWidth="60.0" text="OK" AnchorPane.leftAnchor="30.0" />
-      <Button cancelButton="true" layoutX="163.0" layoutY="71.0" mnemonicParsing="false" onAction="#handleCancel" prefWidth="60.0" text="Cancel" AnchorPane.leftAnchor="160.0" />
-      <Label layoutX="30.0" layoutY="26.0" prefHeight="43.0" prefWidth="194.0" text="Kill all tasks on GeoWebCache?" AnchorPane.topAnchor="25.0">
+      <Button defaultButton="true" layoutX="34.0" layoutY="71.0" minWidth="60.0" mnemonicParsing="false" onAction="#handleOk" prefWidth="60.0" text="OK" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="70.0" />
+      <Button cancelButton="true" layoutX="163.0" layoutY="71.0" minWidth="60.0" mnemonicParsing="false" onAction="#handleCancel" prefWidth="60.0" text="Cancel" AnchorPane.leftAnchor="160.0" AnchorPane.topAnchor="70.0" />
+      <Label layoutX="30.0" layoutY="26.0" prefHeight="40.0" text="Kill all tasks on GeoWebCache?" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="20.0">
          <font>
             <Font size="14.0" />
          </font>

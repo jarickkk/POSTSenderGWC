@@ -9,13 +9,14 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.infotechgroup.ps.view.ConnectController">
    <children>
       <Label layoutX="60.0" layoutY="55.0" text="Geoserver host" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="60.0" />
-      <TextField fx:id="host" layoutX="64.0" layoutY="84.0" prefWidth="150.0" promptText="localhost:8080" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="80.0" />
+      <TextField fx:id="host" layoutX="64.0" layoutY="84.0" minWidth="200.0" prefWidth="250.0" promptText="localhost:8080" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="80.0" />
       <Label layoutX="64.0" layoutY="122.0" text="Username" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="120.0" />
-      <TextField fx:id="username" layoutX="64.0" layoutY="139.0" prefWidth="150.0" promptText="admin" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="140.0" />
+      <TextField fx:id="username" layoutX="64.0" layoutY="139.0" minWidth="200.0" prefWidth="250.0" promptText="admin" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="140.0" />
       <Label layoutX="60.0" layoutY="181.0" text="Password" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="180.0" />
-      <PasswordField fx:id="password" layoutX="64.0" layoutY="198.0" prefWidth="150.0" promptText="geoserver" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="200.0" />
-      <Button defaultButton="true" layoutX="64.0" layoutY="250.0" minHeight="25.0" minWidth="60.0" mnemonicParsing="false" onAction="#connect" prefWidth="60.0" text="Connect" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="250.0" />
+      <TextField fx:id="password" layoutX="60.0" layoutY="204.0" minWidth="200.0" prefWidth="250.0" promptText="geoserver" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="200.0" />
+      <Button defaultButton="true" layoutX="64.0" layoutY="250.0" minHeight="25.0" minWidth="70.0" mnemonicParsing="false" onAction="#connect" prefWidth="100.0" text="Connect" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="250.0" />
       <Label fx:id="status" layoutX="60.0" layoutY="292.0" textFill="#1ba300" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="290.0" />
       <Button fx:id="disconnect" disable="true" layoutX="129.0" layoutY="250.0" mnemonicParsing="false" onAction="#disconnect" prefWidth="70.0" text="Disonnect" visible="false" AnchorPane.leftAnchor="140.0" AnchorPane.topAnchor="250.0" />
+      <PasswordField layoutX="65.0" layoutY="361.0" prefWidth="150.0" promptText="geoserver" visible="false" AnchorPane.leftAnchor="65.0" AnchorPane.topAnchor="361.0" />
    </children>
 </AnchorPane>
