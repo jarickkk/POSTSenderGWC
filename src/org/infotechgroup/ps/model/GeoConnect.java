@@ -457,7 +457,7 @@ public class GeoConnect {
             layerURL = HOST + "/geoserver/gwc/rest/seed/" + l.getLayerName();           //get page with other info
             pageResult = getPageAuth(layerURL);
 
-            //System.out.println(pageResult);
+            System.out.println(pageResult);
             Document html = Jsoup.parse(pageResult);
 
             Elements tbodyS = html.select("tbody");
@@ -527,6 +527,7 @@ public class GeoConnect {
                 }
                 l.setMaxBoundsText(hash);
             }
+
             l.setFilled(true);
 
         }catch (Exception e){
