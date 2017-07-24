@@ -15,6 +15,7 @@ import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
 /**
@@ -36,6 +37,7 @@ public class GeoConnect {
     private final static String LOGFILE = "./LayersTestLog.txt";
     private static boolean layersAvailable = false;
     private static ObservableList<Layer> layerstList;
+    private static ObservableList<Layer> groupsList;
     private static ObservableList<TaskOnGWC> tasksList;
     private static ArrayList<String> listOfLayersHrefs = new ArrayList<>();
     private static FileOutputStream logOutputStream;
@@ -61,8 +63,8 @@ public class GeoConnect {
         CookieHandler.setDefault(new CookieManager());
 
         logOutputStream = new FileOutputStream(LOGFILE, true);
-        //System.setOut(new PrintStream(logOutputStream));
-        //System.setErr(new PrintStream(logOutputStream));
+        System.setOut(new PrintStream(logOutputStream));
+        System.setErr(new PrintStream(logOutputStream));
 
         if(!HOST.startsWith("http://")) HOST = "http://" + HOST;
         String URLink = HOST + "/geoserver/web/";                                                                            //URLink для получения первичного cookies  с сессией
@@ -397,19 +399,21 @@ public class GeoConnect {
         return builder.toString().trim();
     }
 
-    private ObservableList<Layer> fillListsOfLayersGroups(){
-        ObservableList<Layer> resultList = FXCollections.observableArrayList();
+    private void fillListsOfLayersGroups(){
         if(listOfLayersHrefs.size() > 0){
             for(String s : listOfLayersHrefs){
                 boolean ok = true;
                 if(ok) {
                     Layer newL = new Layer(s);
                     setUpLayersFields(newL);
-                    resultList.add(newL);
+                    if(newL.isGroup()){
+                        groupsList.add(newL);
+                    }else {
+                        layerstList.add(newL);
+                    }
                 }
             }
         }
-        return resultList;
     }
 
     private ArrayList<String> parseForLayersHrefs(String res){
@@ -436,29 +440,55 @@ public class GeoConnect {
     private void setUpLayersFields(Layer l){
         String layerURL = l.getHref();
         try {
-            String pageResult = getPageAuth(layerURL);
+            String pageResultXML = getPageAuth(layerURL);
+            Document xml = Jsoup.parse(pageResultXML, "", Parser.xmlParser());             //special XML-parser
 
-            Document xml = Jsoup.parse(pageResult);
-
-            //System.out.println(pageResult);
             l.setLayerName(xml.select("name").first().text());                             //fill Layer Name
             System.out.print(l.getLayerName() + " = ");
 
-            l.setGroup(xml.select("id").first().text().startsWith("LayerGroup")); //is Layer (false) or Group (true)
+            String layerHTMLURL = HOST + "/geoserver/gwc/rest/seed/" + l.getLayerName();        //get page with other info
+            String pageResultHTML = getPageAuth(layerHTMLURL);//TODO: this is KOSTYL`
+            pageResultXML = getPageAuth(layerURL);
+            xml = Jsoup.parse(pageResultXML, "", Parser.xmlParser());
+
+            l.setGroup(xml.select("id").first().text().startsWith("LayerGroup"));               //is it Layer (false) or Group (true)
             System.out.println(l.isGroup());
 
-            ObservableList<String> resultList = FXCollections.observableArrayList();            //fill Formats
+            ObservableList<String> resultList = FXCollections.observableArrayList();            //fill Formats list
             Elements formatS = xml.select("mimeFormats").select("string");
             for(Element f : formatS){
                 resultList.add(f.text());
             }
             l.setFormat(resultList);
 
-            layerURL = HOST + "/geoserver/gwc/rest/seed/" + l.getLayerName();           //get page with other info
-            pageResult = getPageAuth(layerURL);
+            Elements subsetS = xml.select("gridSubset");                   //fill Grid Sets hash map
+            if(subsetS.size() > 0){
+                HashMap<String, ArrayList<String>> hash = new HashMap<>();
+                for (Element set : subsetS) {
+                    String s = set.select("gridSetName").text();
+                    ArrayList<String> list = new ArrayList<>();
+                    for (Element c : set.select("double")) {            //select double values of coordinates from GrigSet
+                        String d = c.text();
+                        if(d.contains("E")){
+                            String[] split = d.split("E");
+                            int e = Integer.parseInt(split[1]) + 1;
+                            int b = split[0].length()-1 - e;
+                            String f = "%"+ e + "." + b + "f";
+                            System.out.println(f);
+                            d = String.format(f, Double.parseDouble(d));
+                        }
+                        list.add(d);
+                    }
+                    hash.put(s, list);
+                }
+                System.out.println(hash);
+                l.setMaxBoundsText(hash);
+            }
 
-            System.out.println(pageResult);
-            Document html = Jsoup.parse(pageResult);
+            pageResultHTML = getPageAuth(layerHTMLURL);
+
+            System.out.println(pageResultHTML);
+            Document html = Jsoup.parse(pageResultHTML);
 
             Elements tbodyS = html.select("tbody");
             Elements rows;
@@ -509,7 +539,7 @@ public class GeoConnect {
                 l.setParameters(modParametersList);
             }
 
-            Elements ulS = html.select("ul");                   //TODO: replase this method on GETTING GRID SET AND MAX BOUNDS FROM .xml
+            /*Elements ulS = html.select("ul");                   //TODO: add chicking GRIDSET??? if null - add GRIDSET from HTML
             if(ulS.size() >= 3){
                 Elements liS = ulS.get(2).select("li");
                 HashMap<String, ArrayList<String>> hash = new HashMap<>();
@@ -526,10 +556,11 @@ public class GeoConnect {
                     hash.put(s, list);
                 }
                 l.setMaxBoundsText(hash);
-            }
+            }*/
 
             l.setFilled(true);
 
+            System.out.println();
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -594,9 +625,10 @@ public class GeoConnect {
 
     private void fillLayersList(){
        layerstList = FXCollections.observableArrayList();
+       groupsList = FXCollections.observableArrayList();
         try {
             listOfLayersHrefs = parseForLayersHrefs(getPageAuth(GWCREST + "/layers"));
-            layerstList = fillListsOfLayersGroups();
+            fillListsOfLayersGroups();
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -604,6 +636,10 @@ public class GeoConnect {
 
     public ObservableList<Layer> getLayersList(){
         return layerstList;
+    }
+
+    public ObservableList<Layer> getGroupsList(){
+        return groupsList;
     }
 
     public static void setUSERNAME(String USERNAME) {

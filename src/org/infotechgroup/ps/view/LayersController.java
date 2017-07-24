@@ -4,7 +4,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
 import org.infotechgroup.ps.MainApp;
 import org.infotechgroup.ps.model.GeoConnect;
 import org.infotechgroup.ps.model.Layer;
@@ -22,6 +21,10 @@ public class LayersController {
     private TableView<Layer> layerTableView;
     @FXML
     private TableColumn<Layer, String> column;
+    @FXML
+    private TableView<Layer> groupTableView;
+    @FXML
+    private TableColumn<Layer, String> column1;
     private String layerName;
     @FXML
     private ChoiceBox<String> numberOfTasks;
@@ -110,6 +113,7 @@ public class LayersController {
                     ChoiceBox<String> c = listOfBoxes.get(counter);
                     c.setItems(KeyValue.getValue());
                     c.setVisible(true);
+                    c.getSelectionModel().selectFirst();
                     counter++;
                 }
                 modifiableParameters.setVisible(true);
@@ -196,19 +200,24 @@ public class LayersController {
             listOfBoxes.add(modifiableParam4);
             listOfBoxes.add(modifiableParam5);
         }
-       column.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
-       showLayerChoices(null);
-       layerTableView.getSelectionModel().selectedItemProperty().addListener(
+        column1.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
+        column.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
+        showLayerChoices(null);
+        layerTableView.getSelectionModel().selectedItemProperty().addListener(
                ((observable, oldValue, newValue) -> showLayerChoices(newValue))
-       );
-       gridSet.getSelectionModel().selectedItemProperty().addListener(
+        );
+        groupTableView.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) -> showLayerChoices(newValue))
+        );
+        gridSet.getSelectionModel().selectedItemProperty().addListener(
                ((observable, oldValue, newValue) -> setMaxBounds(newValue))
-       );
+        );
 
     }
 
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
+        groupTableView.setItems(GeoConnect.getInstance().getGroupsList());
         layerTableView.setItems(GeoConnect.getInstance().getLayersList());
 
     }
@@ -224,13 +233,13 @@ public class LayersController {
         task.setZoomStart(zoomStart.getValue());
         task.setZoomStop(zoomStop.getValue());
 
-        HashMap<String, String> mapOfParameterms = new HashMap<>();
+        HashMap<String, String> mapOfParameters = new HashMap<>();
         for(int i = 0; i < 5; i++){
             if(listOfBoxes.get(i).isVisible()){
-                mapOfParameterms.put(listOfLabels.get(i).getText(), listOfBoxes.get(i).getValue());
+                mapOfParameters.put(listOfLabels.get(i).getText(), listOfBoxes.get(i).getValue());
             }
         }
-        task.setModParameters(mapOfParameterms);
+        task.setModParameters(mapOfParameters);
 
         String buffer = minX.getText();
         if(buffer.equals("")) {
