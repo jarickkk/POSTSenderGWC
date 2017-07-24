@@ -1,6 +1,5 @@
 package org.infotechgroup.ps.view;
 
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
@@ -19,7 +18,7 @@ public class ConnectController {
     @FXML
     private TextField username;
     @FXML
-    private PasswordField password;
+    private TextField password;
     @FXML
     private Label status;
     @FXML
@@ -43,6 +42,7 @@ public class ConnectController {
         if(buffer.isEmpty())
             buffer = password.getPromptText();
         g.setPASSWORD(buffer);
+        fillLabel("");
       try{
             fillLabel(g.connect());
 
@@ -67,7 +67,7 @@ public class ConnectController {
         this.mainApp = mainApp;
     }
 
-    public void fillLabel(String text){
+    private void fillLabel(String text){
         if(text.equals("No connection")){
             status.setTextFill(Color.RED);
         }else{

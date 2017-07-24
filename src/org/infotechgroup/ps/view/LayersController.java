@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import org.infotechgroup.ps.MainApp;
 import org.infotechgroup.ps.model.GeoConnect;
 import org.infotechgroup.ps.model.Layer;
@@ -11,6 +12,7 @@ import org.infotechgroup.ps.model.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by User on 10.07.2017.
@@ -34,7 +36,32 @@ public class LayersController {
     @FXML
     private ChoiceBox<String> zoomStop;
     @FXML
-    private ChoiceBox<String> modifiableParam;
+    private Label paramName1;
+    @FXML
+    private Label paramName2;
+    @FXML
+    private Label paramName3;
+    @FXML
+    private Label paramName4;
+    @FXML
+    private Label paramName5;
+
+    @FXML
+    private Label modifiableParameters;
+    private ArrayList<Label> listOfLabels;
+
+    @FXML
+    private ChoiceBox<String> modifiableParam1;
+    @FXML
+    private ChoiceBox<String> modifiableParam2;
+    @FXML
+    private ChoiceBox<String> modifiableParam3;
+    @FXML
+    private ChoiceBox<String> modifiableParam4;
+    @FXML
+    private ChoiceBox<String> modifiableParam5;
+    private ArrayList<ChoiceBox<String>> listOfBoxes;
+
     @FXML
     private TextField minX;
     @FXML
@@ -45,13 +72,15 @@ public class LayersController {
     private TextField maxY;
     @FXML
     private CheckBox checkBox;
+    @FXML
+    private ScrollPane scrollPane;
     private HashMap<String, ArrayList<String>> selectedMap;
-    private Task task;
 
     private MainApp mainApp;
 
 
     public LayersController(){
+
     }
 
     private void showLayerChoices(Layer layer) {
@@ -71,14 +100,24 @@ public class LayersController {
             zoomStop.setItems(layer.getZoomStop());
             zoomStop.getSelectionModel().selectFirst();
 
-            if(layer.getParameter()!=null) {
-                modifiableParam.setItems(layer.getParameter());         //TODO: list of mod params
-                modifiableParam.getSelectionModel().selectFirst();
-                modifiableParam.setVisible(true);
-            }else {
-                modifiableParam.setValue("");
-                modifiableParam.setVisible(false);
+            if(layer.getParameters()!=null && layer.getParameters().size() > 0){
+                clearModParams();
+                int counter = 0;
+                for(Map.Entry<String, ObservableList<String>> KeyValue : layer.getParameters().entrySet()){
+                    Label l = listOfLabels.get(counter);
+                    l.setText(KeyValue.getKey().replace("parameter_", ""));
+                    l.setVisible(true);
+                    ChoiceBox<String> c = listOfBoxes.get(counter);
+                    c.setItems(KeyValue.getValue());
+                    c.setVisible(true);
+                    counter++;
+                }
+                modifiableParameters.setVisible(true);
+                scrollPane.setVisible(true);
+            }else{
+                disableModParams();
             }
+
 
         } else {
             ObservableList<String> nul = FXCollections.observableArrayList("");
@@ -88,8 +127,32 @@ public class LayersController {
             format.setItems(nul);
             zoomStart.setItems(nul);
             zoomStop.setItems(nul);
-            modifiableParam.setItems(nul);
-            modifiableParam.setVisible(false);
+            disableModParams();
+        }
+    }
+
+    private void disableModParams(){
+        modifiableParameters.setVisible(false);
+        scrollPane.setVisible(false);
+        ObservableList<String> nul = FXCollections.observableArrayList("");
+        for(ChoiceBox c : listOfBoxes){
+          c.setItems(nul);
+          c.setVisible(false);
+        }
+        for (Label l : listOfLabels){
+            l.setText("");
+            l.setVisible(false);
+        }
+    }
+    private void clearModParams(){
+        ObservableList<String> nul = FXCollections.observableArrayList("");
+        for(ChoiceBox c : listOfBoxes){
+            c.setItems(nul);
+            c.setVisible(false);
+        }
+        for (Label l : listOfLabels){
+            l.setText("");
+            l.setVisible(false);
         }
     }
 
@@ -117,6 +180,22 @@ public class LayersController {
 
     @FXML
     public void initialize(){
+        listOfLabels = new ArrayList<>();
+        {
+            listOfLabels.add(paramName1);
+            listOfLabels.add(paramName2);
+            listOfLabels.add(paramName3);
+            listOfLabels.add(paramName4);
+            listOfLabels.add(paramName5);
+        }
+        listOfBoxes = new ArrayList<>();
+        {
+            listOfBoxes.add(modifiableParam1);
+            listOfBoxes.add(modifiableParam2);
+            listOfBoxes.add(modifiableParam3);
+            listOfBoxes.add(modifiableParam4);
+            listOfBoxes.add(modifiableParam5);
+        }
        column.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
        showLayerChoices(null);
        layerTableView.getSelectionModel().selectedItemProperty().addListener(
@@ -131,11 +210,12 @@ public class LayersController {
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
         layerTableView.setItems(GeoConnect.getInstance().getLayersList());
+
     }
 
     @FXML
     private void submit(){
-        task = new Task(GeoConnect.getInstance());
+        Task task = new Task(GeoConnect.getInstance());
         task.setLayerName(layerName);
         task.setNumberOfTasksToUse(numberOfTasks.getValue());
         task.setTypeOfOperation(typeOfOperation.getValue());
@@ -143,10 +223,18 @@ public class LayersController {
         task.setFormat(format.getValue());
         task.setZoomStart(zoomStart.getValue());
         task.setZoomStop(zoomStop.getValue());
-        task.setModParameter(modifiableParam.getValue());
+
+        HashMap<String, String> mapOfParameterms = new HashMap<>();
+        for(int i = 0; i < 5; i++){
+            if(listOfBoxes.get(i).isVisible()){
+                mapOfParameterms.put(listOfLabels.get(i).getText(), listOfBoxes.get(i).getValue());
+            }
+        }
+        task.setModParameters(mapOfParameterms);
 
         String buffer = minX.getText();
-        if(buffer.equals("")) {task.setMinX(null);
+        if(buffer.equals("")) {
+            task.setMinX(null);
         } else task.setMinX(Double.parseDouble(buffer));
 
         buffer = minY.getText();

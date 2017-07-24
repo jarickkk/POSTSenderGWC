@@ -46,7 +46,7 @@ public class MainApp extends Application {
     /**
      * Init Stage - Base window
      */
-    public void initRootLayout() {
+    private void initRootLayout() {
         try {
             // Loading root controller from .fxml.
             FXMLLoader loader = new FXMLLoader();

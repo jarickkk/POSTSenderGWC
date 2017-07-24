@@ -1,5 +1,8 @@
 package org.infotechgroup.ps.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * Created by User on 11.07.2017.
  */
@@ -12,7 +15,7 @@ public class Task {
     private String format;
     private String zoomStart;
     private String zoomStop;
-    private String modParameter;
+    private HashMap<String, String> modParameters;
     private Double minX, minY, maxX, maxY;
     private GeoConnect geoConnect;
 
@@ -32,51 +35,51 @@ public class Task {
         }
     }
 
-    public String getLayerName() {
+    String getLayerName() {
         return layerName;
     }
 
-    public String getNumberOfTasksToUse() {
+    String getNumberOfTasksToUse() {
         return numberOfTasksToUse;
     }
 
-    public String getTypeOfOperation() {
+    String getTypeOfOperation() {
         return typeOfOperation;
     }
 
-    public String getGridSet() {
+    String getGridSet() {
         return gridSet;
     }
 
-    public String getFormat() {
+    String getFormat() {
         return format;
     }
 
-    public String getZoomStart() {
+    String getZoomStart() {
         return zoomStart;
     }
 
-    public String getZoomStop() {
+    String getZoomStop() {
         return zoomStop;
     }
 
-    public String getModParameter() {
-        return modParameter;
+    HashMap<String, String> getModParameters() {
+        return modParameters;
     }
 
-    public Double getMinX() {
+    Double getMinX() {
         return minX;
     }
 
-    public Double getMinY() {
+    Double getMinY() {
         return minY;
     }
 
-    public Double getMaxX() {
+    Double getMaxX() {
         return maxX;
     }
 
-    public Double getMaxY() {
+    Double getMaxY() {
         return maxY;
     }
 
@@ -108,8 +111,8 @@ public class Task {
         this.zoomStop = zoomStop;
     }
 
-    public void setModParameter(String modParameter) {
-        this.modParameter = modParameter;
+    public void setModParameters( HashMap<String, String> modParameters) {
+        this.modParameters = modParameters;
     }
 
     public void setMinX(Double minX) {

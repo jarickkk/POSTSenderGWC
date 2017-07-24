@@ -9,18 +9,24 @@ import java.util.HashMap;
 
 public class Layer {
     private StringProperty layerName;
+    private String href;
+    private boolean isGroup;
     private ObservableList<String> numberOfTasks;
     private ObservableList<String> typeOfOperation;
     private ObservableList<String> gridSet;
     private ObservableList<String> format;
     private ObservableList<String> zoomStart;
     private ObservableList<String> zoomStop;
-    private ObservableList<String> parameter;
+    private HashMap<String, ObservableList<String>> parameters;
     private HashMap<String, ArrayList<String>> maxBoundsText;
     private boolean filled = false;
 
     public Layer(String name){
-        this.layerName = new SimpleStringProperty(name);
+        this.href = name;
+    }
+
+    public void setLayerName(String layerName) {
+        this.layerName = new SimpleStringProperty(layerName);
     }
 
     public String getLayerName() {
@@ -35,7 +41,7 @@ public class Layer {
         return numberOfTasks;
     }
 
-    public void setNumberOfTasks(ObservableList<String> numberOfTasks) {
+    void setNumberOfTasks(ObservableList<String> numberOfTasks) {
         this.numberOfTasks = numberOfTasks;
     }
 
@@ -43,7 +49,7 @@ public class Layer {
         return typeOfOperation;
     }
 
-    public void setTypeOfOperation(ObservableList<String> typeOfOperation) {
+    void setTypeOfOperation(ObservableList<String> typeOfOperation) {
         this.typeOfOperation = typeOfOperation;
     }
 
@@ -51,7 +57,7 @@ public class Layer {
         return gridSet;
     }
 
-    public void setGridSet(ObservableList<String> gridSet) {
+    void setGridSet(ObservableList<String> gridSet) {
         this.gridSet = gridSet;
     }
 
@@ -59,7 +65,7 @@ public class Layer {
         return format;
     }
 
-    public void setFormat(ObservableList<String> format) {
+    void setFormat(ObservableList<String> format) {
         this.format = format;
     }
 
@@ -67,7 +73,7 @@ public class Layer {
         return zoomStart;
     }
 
-    public void setZoomStart(ObservableList<String> zoomStart) {
+    void setZoomStart(ObservableList<String> zoomStart) {
         this.zoomStart = zoomStart;
     }
 
@@ -75,23 +81,23 @@ public class Layer {
         return zoomStop;
     }
 
-    public void setZoomStop(ObservableList<String> zoomStop) {
+    void setZoomStop(ObservableList<String> zoomStop) {
         this.zoomStop = zoomStop;
     }
 
-    public ObservableList<String> getParameter() {
-        return parameter;
+    public HashMap<String, ObservableList<String>> getParameters() {
+        return parameters;
     }
 
-    public void setParameter(ObservableList<String> parameter) {
-        this.parameter = parameter;
+    void setParameters(HashMap<String, ObservableList<String>> parameters) {
+        this.parameters = parameters;
     }
 
     public HashMap<String, ArrayList<String>> getMaxBoundsText() {
         return maxBoundsText;
     }
 
-    public void setMaxBoundsText(HashMap<String, ArrayList<String>> maxBoundsText) {
+    void setMaxBoundsText(HashMap<String, ArrayList<String>> maxBoundsText) {
         this.maxBoundsText = maxBoundsText;
     }
 
@@ -99,7 +105,23 @@ public class Layer {
         return filled;
     }
 
-    public void setFilled(boolean filled) {
+    void setFilled(boolean filled) {
         this.filled = filled;
+    }
+
+    public String getHref() {
+        return href;
+    }
+
+    public void setHref(String href) {
+        this.href = href;
+    }
+
+    public boolean isGroup() {
+        return isGroup;
+    }
+
+    public void setGroup(boolean group) {
+        isGroup = group;
     }
 }
