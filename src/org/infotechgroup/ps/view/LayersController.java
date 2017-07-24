@@ -200,15 +200,7 @@ public class LayersController {
             listOfBoxes.add(modifiableParam4);
             listOfBoxes.add(modifiableParam5);
         }
-        column1.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
-        column.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
-        showLayerChoices(null);
-        layerTableView.getSelectionModel().selectedItemProperty().addListener(
-               ((observable, oldValue, newValue) -> showLayerChoices(newValue))
-        );
-        groupTableView.getSelectionModel().selectedItemProperty().addListener(
-                ((observable, oldValue, newValue) -> showLayerChoices(newValue))
-        );
+        refresh();
         gridSet.getSelectionModel().selectedItemProperty().addListener(
                ((observable, oldValue, newValue) -> setMaxBounds(newValue))
         );
@@ -264,9 +256,13 @@ public class LayersController {
 
     @FXML
     private void refresh(){
+        column1.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
         column.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
         showLayerChoices(null);
         layerTableView.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) -> showLayerChoices(newValue))
+        );
+        groupTableView.getSelectionModel().selectedItemProperty().addListener(
                 ((observable, oldValue, newValue) -> showLayerChoices(newValue))
         );
     }

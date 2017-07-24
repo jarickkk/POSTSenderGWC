@@ -33,10 +33,10 @@ public class GeoConnect {
     private static String USERNAME;
     private static String PASSWORD;
     private static String HOST;
-    private static int TIMEOUT = 10000;
+    private static int TIMEOUT = 10001;
     private final static String LOGFILE = "./LayersTestLog.txt";
     private static boolean layersAvailable = false;
-    private static ObservableList<Layer> layerstList;
+    private static ObservableList<Layer> layersList;
     private static ObservableList<Layer> groupsList;
     private static ObservableList<TaskOnGWC> tasksList;
     private static ArrayList<String> listOfLayersHrefs = new ArrayList<>();
@@ -409,7 +409,7 @@ public class GeoConnect {
                     if(newL.isGroup()){
                         groupsList.add(newL);
                     }else {
-                        layerstList.add(newL);
+                        layersList.add(newL);
                     }
                 }
             }
@@ -610,7 +610,7 @@ public class GeoConnect {
         tasksList = FXCollections.observableArrayList();
         try {
             if (!listOfLayersHrefs.isEmpty()) {
-                String tasksURL = HOST + "/geoserver/gwc/rest/seed/" + layerstList.get(0).getLayerName();
+                String tasksURL = HOST + "/geoserver/gwc/rest/seed/" + layersList.get(0).getLayerName();
                 String postParams = "list=all";
                 String result = sendTaskPost(tasksURL, postParams);
                 //System.out.println(result);
@@ -624,7 +624,7 @@ public class GeoConnect {
     }
 
     private void fillLayersList(){
-       layerstList = FXCollections.observableArrayList();
+       layersList = FXCollections.observableArrayList();
        groupsList = FXCollections.observableArrayList();
         try {
             listOfLayersHrefs = parseForLayersHrefs(getPageAuth(GWCREST + "/layers"));
@@ -635,7 +635,7 @@ public class GeoConnect {
     }
 
     public ObservableList<Layer> getLayersList(){
-        return layerstList;
+        return layersList;
     }
 
     public ObservableList<Layer> getGroupsList(){
