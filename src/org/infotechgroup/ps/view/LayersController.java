@@ -78,6 +78,7 @@ public class LayersController {
     @FXML
     private ScrollPane scrollPane;
     private HashMap<String, ArrayList<String>> selectedMap;
+    private boolean blocked = false;
 
     private MainApp mainApp;
 
@@ -86,7 +87,26 @@ public class LayersController {
 
     }
 
-    private void showLayerChoices(Layer layer) {
+    private void showLayerChoice(Layer layer){
+        if (!blocked) {
+            blocked = true;
+            groupTableView.getSelectionModel().clearSelection();
+        }
+        showChoice(layer);
+        blocked = false;
+    }
+
+    private void showGroupChoice(Layer layer){
+        if (!blocked) {
+            blocked = true;
+            layerTableView.getSelectionModel().clearSelection();
+        }
+        showChoice(layer);
+        blocked = false;
+    }
+
+
+    private void showChoice(Layer layer) {
         if (layer != null && layer.isFilled()) {
             layerName = layer.getLayerName();
             selectedMap = layer.getMaxBoundsText();
@@ -258,12 +278,12 @@ public class LayersController {
     private void refresh(){
         column1.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
         column.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
-        showLayerChoices(null);
+        showChoice(null);
         layerTableView.getSelectionModel().selectedItemProperty().addListener(
-                ((observable, oldValue, newValue) -> showLayerChoices(newValue))
+                ((observable, oldValue, newValue) -> showLayerChoice(newValue))
         );
         groupTableView.getSelectionModel().selectedItemProperty().addListener(
-                ((observable, oldValue, newValue) -> showLayerChoices(newValue))
+                ((observable, oldValue, newValue) -> showGroupChoice(newValue))
         );
     }
 

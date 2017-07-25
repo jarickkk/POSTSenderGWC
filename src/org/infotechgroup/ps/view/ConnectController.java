@@ -24,6 +24,7 @@ public class ConnectController {
     @FXML
     private Button disconnect;
 
+
     @FXML
     private void connect(){
         GeoConnect g = GeoConnect.getInstance();
@@ -61,6 +62,7 @@ public class ConnectController {
 
     @FXML
     public void initialize(){
+        //host.set
     }
 
     public void setMainApp(MainApp mainApp) {

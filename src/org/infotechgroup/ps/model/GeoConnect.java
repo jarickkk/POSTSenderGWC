@@ -33,7 +33,7 @@ public class GeoConnect {
     private static String USERNAME;
     private static String PASSWORD;
     private static String HOST;
-    private static int TIMEOUT = 10001;
+    private static int TIMEOUT;
     private final static String LOGFILE = "./LayersTestLog.txt";
     private static boolean layersAvailable = false;
     private static ObservableList<Layer> layersList;
@@ -109,7 +109,7 @@ public class GeoConnect {
         String postParams = setPostParams(task);
         System.out.println(link.toString());
         connection = (HttpURLConnection) link.openConnection();
-        connection.setConnectTimeout(TIMEOUT);
+        //connection.setConnectTimeout(TIMEOUT);
 
         // создаем POST запрос на основе данных POST запроса из браузера (получено вручную)
         connection.setUseCaches(false);
@@ -148,7 +148,7 @@ public class GeoConnect {
         URL link = new URL(HOST + "/geoserver/gwc/rest/seed");
         String postParams = "kill_all=all";
         System.out.println(link.toString());
-        connection.setConnectTimeout(TIMEOUT);
+        //connection.setConnectTimeout(TIMEOUT);
         connection = (HttpURLConnection) link.openConnection();
 
         connection.setUseCaches(false);
@@ -190,7 +190,7 @@ public class GeoConnect {
             return;
         String postParams = "kill_thread=1&thread_id="+ID;
         System.out.println(link.toString());
-        connection.setConnectTimeout(TIMEOUT);
+        //connection.setConnectTimeout(TIMEOUT);
         connection = (HttpURLConnection) link.openConnection();
 
         connection.setUseCaches(false);
@@ -230,7 +230,7 @@ public class GeoConnect {
 
         URL obj = new URL(url);
         connection = (HttpURLConnection) obj.openConnection();
-        connection.setConnectTimeout(TIMEOUT);
+        //connection.setConnectTimeout(TIMEOUT);
         // создаем POST запрос на основе данных POST запроса из браузера (получено вручную)
         connection.setUseCaches(false);
         connection.setRequestMethod("POST");
@@ -267,7 +267,7 @@ public class GeoConnect {
 
         URL obj = new URL(url);
         connection = (HttpURLConnection) obj.openConnection();
-        connection.setConnectTimeout(TIMEOUT);
+        //connection.setConnectTimeout(TIMEOUT);
 
         // создаем POST запрос на основе данных POST запроса из браузера (получено вручную)
         connection.setUseCaches(false);
@@ -312,7 +312,7 @@ public class GeoConnect {
 
         URL obj = new URL(url);
         connection = (HttpURLConnection) obj.openConnection();
-        connection.setConnectTimeout(TIMEOUT);
+        //connection.setConnectTimeout(TIMEOUT);
 
         connection.setRequestMethod("GET");
         connection.setUseCaches(false);
@@ -336,7 +336,7 @@ public class GeoConnect {
         URL obj = new URL(url);
         connection = (HttpURLConnection) obj.openConnection();
 
-        connection.setConnectTimeout(TIMEOUT);
+        //connection.setConnectTimeout(TIMEOUT);
 
         connection.setRequestMethod("GET");
 

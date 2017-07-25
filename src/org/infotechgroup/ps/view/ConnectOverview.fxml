@@ -3,6 +3,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
@@ -18,5 +19,6 @@
       <Label fx:id="status" layoutX="60.0" layoutY="292.0" textFill="#1ba300" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="290.0" />
       <Button fx:id="disconnect" disable="true" layoutX="129.0" layoutY="250.0" mnemonicParsing="false" onAction="#disconnect" prefWidth="70.0" text="Disonnect" visible="false" AnchorPane.leftAnchor="140.0" AnchorPane.topAnchor="250.0" />
       <PasswordField layoutX="65.0" layoutY="361.0" prefWidth="150.0" promptText="geoserver" visible="false" AnchorPane.leftAnchor="65.0" AnchorPane.topAnchor="361.0" />
+      <ProgressIndicator layoutX="59.0" layoutY="290.0" />
    </children>
 </AnchorPane>
