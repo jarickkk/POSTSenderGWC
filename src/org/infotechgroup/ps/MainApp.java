@@ -23,6 +23,7 @@ public class MainApp extends Application {
     private Stage primaryStage;
     private BorderPane rootLayout;
     private boolean isTaskView = false;
+    private LayersController layersController;
     private Thread refreshThread ;
 
     @Override
@@ -48,7 +49,7 @@ public class MainApp extends Application {
      */
     private void initRootLayout() {
         try {
-            // Loading root controller from .fxml.
+            // Loading root layersController from .fxml.
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("view/RootLayout.fxml"));
             rootLayout = loader.load();
@@ -77,8 +78,9 @@ public class MainApp extends Application {
             rootLayout.setBottom(null);
             rootLayout.setLeft(null);
             rootLayout.setBottom(layersOverview);
-            LayersController controller = loader.getController();
-            controller.setMainApp(this);
+            layersController = loader.getController();
+            layersController.setMainApp(this);
+            layersController.restoreState();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -121,6 +123,7 @@ public class MainApp extends Application {
     public void showConnectOverview(){
         try {
             isTaskView = false;
+
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("view/ConnectOverview.fxml"));
             AnchorPane connectOverview = loader.load();
@@ -128,6 +131,7 @@ public class MainApp extends Application {
             rootLayout.setLeft(connectOverview);
             ConnectController connectController = loader.getController();
             connectController.setMainApp(this);
+
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -19,7 +19,8 @@ public class RootController {
     @FXML
     private void layersController(){mainApp.showLayersOverview();}
     @FXML
-    private void tasksController(){mainApp.showTasksOverview();}
+    private void tasksController(){
+        mainApp.showTasksOverview();}
 
     public RootController(){
     }

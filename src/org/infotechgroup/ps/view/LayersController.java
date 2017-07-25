@@ -80,6 +80,9 @@ public class LayersController {
     private HashMap<String, ArrayList<String>> selectedMap;
     private boolean blocked = false;
 
+    private static int selectedLayer = 0, selectedNumOfTask = 0, selectedType = 0, selectedGridSet = 0, selectedFormat = 0, selectedZoomStart = 0, selectedZoomStop = 0;
+    private static boolean isGroup = false;
+
     private MainApp mainApp;
 
 
@@ -92,6 +95,8 @@ public class LayersController {
             blocked = true;
             groupTableView.getSelectionModel().clearSelection();
         }
+        selectedLayer = layerTableView.getSelectionModel().getSelectedIndex();
+        isGroup = false;
         showChoice(layer);
         blocked = false;
     }
@@ -101,10 +106,30 @@ public class LayersController {
             blocked = true;
             layerTableView.getSelectionModel().clearSelection();
         }
+        isGroup = true;
+        selectedLayer = groupTableView.getSelectionModel().getSelectedIndex();
         showChoice(layer);
         blocked = false;
     }
 
+
+    public void restoreState(){
+        if(isGroup){
+            groupTableView.getSelectionModel().select(selectedLayer);
+        }else{
+            layerTableView.getSelectionModel().select(selectedLayer);
+        }
+        numberOfTasks.getSelectionModel().select(selectedNumOfTask);
+        typeOfOperation.getSelectionModel().select(selectedType);
+        gridSet.getSelectionModel().select(selectedGridSet);
+        format.getSelectionModel().select(selectedFormat);
+        zoomStart.getSelectionModel().select(selectedZoomStart);
+        zoomStop.getSelectionModel().select(selectedZoomStop);
+    }
+
+    public void saveState(){
+        selectedNumOfTask = numberOfTasks.getSelectionModel().getSelectedIndex();
+    }
 
     private void showChoice(Layer layer) {
         if (layer != null && layer.isFilled()) {
@@ -123,10 +148,11 @@ public class LayersController {
             zoomStop.setItems(layer.getZoomStop());
             zoomStop.getSelectionModel().selectFirst();
 
-            if(layer.getParameters()!=null && layer.getParameters().size() > 0){
+            HashMap<String, ObservableList<String>> layerParameters = layer.getParameters();
+            if(layerParameters!=null && layerParameters.size() > 0){
                 clearModParams();
                 int counter = 0;
-                for(Map.Entry<String, ObservableList<String>> KeyValue : layer.getParameters().entrySet()){
+                for(Map.Entry<String, ObservableList<String>> KeyValue : layerParameters.entrySet()){
                     Label l = listOfLabels.get(counter);
                     l.setText(KeyValue.getKey().replace("parameter_", ""));
                     l.setVisible(true);
@@ -134,15 +160,18 @@ public class LayersController {
                     c.setItems(KeyValue.getValue());
                     c.setVisible(true);
                     c.getSelectionModel().selectFirst();
+                    c.setDisable(false);
                     counter++;
                 }
                 modifiableParameters.setVisible(true);
                 scrollPane.setVisible(true);
+                /*if(layerParameters.size() == 1){
+                    ObservableList<String> ll = layerParameters.get("parameter_STYLES");
+                    if(ll.size() == 1);
+                        modifiableParam1.setDisable(true);}*/ //Work not properly
             }else{
                 disableModParams();
             }
-
-
         } else {
             ObservableList<String> nul = FXCollections.observableArrayList("");
             numberOfTasks.setItems(nul) ;
@@ -224,7 +253,6 @@ public class LayersController {
         gridSet.getSelectionModel().selectedItemProperty().addListener(
                ((observable, oldValue, newValue) -> setMaxBounds(newValue))
         );
-
     }
 
     public void setMainApp(MainApp mainApp) {
@@ -278,13 +306,32 @@ public class LayersController {
     private void refresh(){
         column1.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
         column.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
-        showChoice(null);
+        //showChoice(null);
         layerTableView.getSelectionModel().selectedItemProperty().addListener(
                 ((observable, oldValue, newValue) -> showLayerChoice(newValue))
         );
         groupTableView.getSelectionModel().selectedItemProperty().addListener(
                 ((observable, oldValue, newValue) -> showGroupChoice(newValue))
         );
+        numberOfTasks.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) ->  selectedNumOfTask = numberOfTasks.getSelectionModel().getSelectedIndex())
+        );
+        typeOfOperation.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) ->  selectedType = typeOfOperation.getSelectionModel().getSelectedIndex())
+        );
+        gridSet.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) ->  selectedGridSet = gridSet.getSelectionModel().getSelectedIndex())
+        );
+        format.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) ->  selectedFormat = format.getSelectionModel().getSelectedIndex())
+        );
+        zoomStart.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) ->  selectedZoomStart = zoomStart.getSelectionModel().getSelectedIndex())
+        );
+        zoomStop.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) ->  selectedZoomStop = zoomStop.getSelectionModel().getSelectedIndex())
+        );
+
     }
 
     @FXML

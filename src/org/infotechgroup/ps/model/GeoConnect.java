@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.infotechgroup.ps.view.ConnectController;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -41,6 +42,7 @@ public class GeoConnect {
     private static ObservableList<TaskOnGWC> tasksList;
     private static ArrayList<String> listOfLayersHrefs = new ArrayList<>();
     private static FileOutputStream logOutputStream;
+    private static String result;
 
     private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36";
 
@@ -63,8 +65,8 @@ public class GeoConnect {
         CookieHandler.setDefault(new CookieManager());
 
         logOutputStream = new FileOutputStream(LOGFILE, true);
-        System.setOut(new PrintStream(logOutputStream));
-        System.setErr(new PrintStream(logOutputStream));
+        //System.setOut(new PrintStream(logOutputStream));
+        //System.setErr(new PrintStream(logOutputStream));
 
         if(!HOST.startsWith("http://")) HOST = "http://" + HOST;
         String URLink = HOST + "/geoserver/web/";                                                                            //URLink для получения первичного cookies  с сессией
@@ -77,28 +79,20 @@ public class GeoConnect {
 
         System.out.println(HOST + "\n" + URLink + "\n" + GWCLink);
 
-        String result = "No connection";
-        Thread t = new Thread(){
-            public void run() {
-                try {
+        result = "No connection";
+
                     GeoConnect.getInstance().getPageContent(URLink);                                                                                  // Посылаем GET запрос для получения сессии
                     GeoConnect.getInstance().sendPost(loginGS, postParams);                                                                            // отправляем POST запрос для аутентификации
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        };
-        t.start();
-        t.join();
+                    fillLayersList();
+                    if(layersAvailable)
+                        result = "Connected to " + HOST;
 
-        fillLayersList();
-        if(layersAvailable)
-            result = "Connected to " + HOST;
+
+
 
         //String layersLink = HOST + "/geoserver/web/wicket/bookmarkable/org.geoserver.web.data.layer.LayerPage";
         //String res = this.getPageAuth(layersLink);                                                                   //метод GET после авторизации
         //System.out.println(res);
-
         System.out.flush();
         System.err.flush();
         return result;
@@ -473,6 +467,7 @@ public class GeoConnect {
                             String[] split = d.split("E");
                             int e = Integer.parseInt(split[1]) + 1;
                             int b = split[0].length()-1 - e;
+                            if(b < 0) b = 0;
                             String f = "%"+ e + "." + b + "f";
                             System.out.println(f);
                             d = String.format(f, Double.parseDouble(d));

@@ -3,8 +3,12 @@ package org.infotechgroup.ps.view;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
+import org.controlsfx.control.textfield.TextFields;
 import org.infotechgroup.ps.MainApp;
 import org.infotechgroup.ps.model.GeoConnect;
+
+import java.io.*;
+import java.util.ArrayList;
 
 /**
  * Created by User on 11.07.2017.
@@ -23,16 +27,36 @@ public class ConnectController {
     private Label status;
     @FXML
     private Button disconnect;
+    @FXML
+    private ProgressIndicator loading;
+    @FXML
+    private TextArea textArea;
+    @FXML
+    private Button editButton;
+    @FXML
+    private Button saveButton;
+    private ArrayList<String> autocompletion;
+    public static String connectionStatus = "";
+    public static boolean connecting = false;
 
 
     @FXML
     private void connect(){
+        connecting = true;
         GeoConnect g = GeoConnect.getInstance();
         String buffer = host.getText();
         if(buffer.isEmpty())
             buffer = host.getPromptText();
-        g.setHOST(buffer);
-
+        try{
+            BufferedWriter fileWriter = new BufferedWriter(new FileWriter("hosts.txt", true));
+            if(!autocompletion.contains(buffer))
+            fileWriter.write("\n" + buffer);
+            fileWriter.close();
+        }catch (IOException ioe){
+            ioe.printStackTrace();
+        }
+        //buffer = buffer.split("//")[0];
+        g.setHOST(buffer.trim());
 
         buffer = username.getText();
         if(buffer.isEmpty())
@@ -43,14 +67,24 @@ public class ConnectController {
         if(buffer.isEmpty())
             buffer = password.getPromptText();
         g.setPASSWORD(buffer);
-        fillLabel("");
-      try{
-            fillLabel(g.connect());
 
-         }catch (Exception e){
-            e.getStackTrace();
-         }
+        try {
+            connectionStatus = g.connect();
+            connecting = false;
+        }catch (Exception e){ e.printStackTrace();}
+        fillLabel(connectionStatus);
     }
+
+    @FXML
+    private void pressLoad(){
+        setLoading(true);
+    }
+
+    private void setLoading(boolean b){
+        status.setVisible(!b);
+        loading.setVisible(b);
+    }
+
 
     @FXML
     private void disconnect(){
@@ -62,8 +96,10 @@ public class ConnectController {
 
     @FXML
     public void initialize(){
-        //host.set
+        fillAutoCompletion();
+        status.setText(connectionStatus);
     }
+
 
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
@@ -76,9 +112,69 @@ public class ConnectController {
             status.setTextFill(Color.GREEN);
             disconnect.setDisable(false);
         }
+
+        setLoading(false);
         status.setText(text);
+
         mainApp.setTitle("GeoWebCache " + text);
     }
 
+    @FXML
+    private void edit(){
+        try{
+            BufferedReader fileReader = new BufferedReader(new FileReader("hosts.txt"));
+            StringBuilder str = new StringBuilder();
+            if(fileReader!=null) {
+                String line;
+                while ((line = fileReader.readLine()) != null) {
+                    str.append(line+"\n");
+                }
+            }
+            fileReader.close();
+            System.out.println(str.toString());
+            textArea.setText(str.toString());
+            textArea.setVisible(true);
+            saveButton.setVisible(true);
+            editButton.setVisible(false);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void save(){
+        try{
+            BufferedWriter fileWriter = new BufferedWriter(new FileWriter("hosts.txt"));
+            String str = textArea.getText();
+            fileWriter.write(str);
+            fileWriter.close();
+            editButton.setVisible(true);
+            saveButton.setVisible(false);
+            textArea.clear();
+            textArea.setVisible(false);
+            mainApp.showConnectOverview();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void fillAutoCompletion(){
+        BufferedReader file;
+        try{
+            file = new BufferedReader(new FileReader("hosts.txt"));
+            autocompletion = new ArrayList<>();
+            if(file!=null){
+                String line;
+                while((line = file.readLine()) != null){
+                    autocompletion.add(line);
+                }
+                file.close();
+                System.out.println(autocompletion);
+                TextFields.bindAutoCompletion(host, autocompletion);
+            }
+        } catch (IOException ioe){
+            ioe.printStackTrace();
+        }
+    }
 
 }

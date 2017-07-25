@@ -3,9 +3,7 @@ package org.infotechgroup.ps.view;
 
 import javafx.fxml.FXML;
 
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import org.infotechgroup.ps.MainApp;
 import org.infotechgroup.ps.model.GeoConnect;
 import org.infotechgroup.ps.model.TaskOnGWC;
@@ -87,9 +85,10 @@ public class TasksController {
     public void refresh(){
         try{
             GeoConnect.getInstance().fillTasksList();
-            String oldID = ID.getText();
+            int selected = tasksTableView.getSelectionModel().getSelectedIndex();
             tasksTableView.setItems(GeoConnect.getInstance().getTasksList());
-            ID.setText(oldID);
+            tasksTableView.getSelectionModel().select(selected);
+
         }catch (Exception e){
             e.printStackTrace();
         }
