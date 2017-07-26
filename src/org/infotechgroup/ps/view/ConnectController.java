@@ -10,9 +10,6 @@ import org.infotechgroup.ps.model.GeoConnect;
 import java.io.*;
 import java.util.ArrayList;
 
-/**
- * Created by User on 11.07.2017.
- */
 public class ConnectController {
 
     private MainApp mainApp;
@@ -36,13 +33,11 @@ public class ConnectController {
     @FXML
     private Button saveButton;
     private ArrayList<String> autocompletion;
-    public static String connectionStatus = "";
-    public static boolean connecting = false;
+    private static String connectionStatus = "";
 
 
     @FXML
     private void connect(){
-        connecting = true;
         GeoConnect g = GeoConnect.getInstance();
         String buffer = host.getText();
         if(buffer.isEmpty())
@@ -50,7 +45,7 @@ public class ConnectController {
         try{
             BufferedWriter fileWriter = new BufferedWriter(new FileWriter("hosts.txt", true));
             if(!autocompletion.contains(buffer))
-            fileWriter.write("\n" + buffer);
+                fileWriter.write("\n" + buffer);
             fileWriter.close();
         }catch (IOException ioe){
             ioe.printStackTrace();
@@ -70,7 +65,6 @@ public class ConnectController {
 
         try {
             connectionStatus = g.connect();
-            connecting = false;
         }catch (Exception e){ e.printStackTrace();}
         fillLabel(connectionStatus);
     }
@@ -106,17 +100,19 @@ public class ConnectController {
     }
 
     private void fillLabel(String text){
-        if(text.equals("No connection")){
-            status.setTextFill(Color.RED);
-        }else{
+        if(text.contains("Authorized")){
             status.setTextFill(Color.GREEN);
             disconnect.setDisable(false);
+            mainApp.setTitle("GeoWebCache " + text);
+        }else{
+            status.setTextFill(Color.RED);
+            mainApp.setTitle("GeoWebCache");
         }
 
         setLoading(false);
         status.setText(text);
 
-        mainApp.setTitle("GeoWebCache " + text);
+
     }
 
     @FXML
@@ -124,12 +120,12 @@ public class ConnectController {
         try{
             BufferedReader fileReader = new BufferedReader(new FileReader("hosts.txt"));
             StringBuilder str = new StringBuilder();
-            if(fileReader!=null) {
-                String line;
-                while ((line = fileReader.readLine()) != null) {
-                    str.append(line+"\n");
-                }
+
+            String line;
+            while ((line = fileReader.readLine()) != null) {
+                str.append(line).append("\n");
             }
+
             fileReader.close();
             System.out.println(str.toString());
             textArea.setText(str.toString());
@@ -163,15 +159,14 @@ public class ConnectController {
         try{
             file = new BufferedReader(new FileReader("hosts.txt"));
             autocompletion = new ArrayList<>();
-            if(file!=null){
-                String line;
-                while((line = file.readLine()) != null){
-                    autocompletion.add(line);
-                }
-                file.close();
-                System.out.println(autocompletion);
-                TextFields.bindAutoCompletion(host, autocompletion);
+            String line;
+            while((line = file.readLine()) != null){
+                autocompletion.add(line);
             }
+            file.close();
+            System.out.println(autocompletion);
+            TextFields.bindAutoCompletion(host, autocompletion);
+
         } catch (IOException ioe){
             ioe.printStackTrace();
         }

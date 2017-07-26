@@ -5,11 +5,11 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane maxHeight="5000.0" maxWidth="5000.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="625.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.infotechgroup.ps.view.RootController">
+<BorderPane maxHeight="5000.0" maxWidth="5000.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="625.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.infotechgroup.ps.view.RootController">
    <top>
-      <TabPane maxHeight="28.0" prefHeight="28.0" prefWidth="800.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+      <TabPane maxHeight="28.0" prefHeight="28.0" prefWidth="850.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
-          <Tab closable="false" onSelectionChanged="#connectController" text="Connect">
+          <Tab closable="false" onSelectionChanged="#connectController" text="Connection">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="800.0" />
             </content>
@@ -19,7 +19,7 @@
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
             </content>
           </Tab>
-            <Tab closable="false" onSelectionChanged="#tasksController" text="Tasks">
+            <Tab closable="false" onSelectionChanged="#tasksController" text="Tasks List">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
               </content>

@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.paint.Color;
 import org.infotechgroup.ps.MainApp;
 import org.infotechgroup.ps.model.GeoConnect;
 import org.infotechgroup.ps.model.Layer;
@@ -13,9 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by User on 10.07.2017.
- */
 public class LayersController {
     @FXML
     private TableView<Layer> layerTableView;
@@ -77,11 +75,17 @@ public class LayersController {
     private CheckBox checkBox;
     @FXML
     private ScrollPane scrollPane;
+    @FXML
+    private Label responseCodeLabel;
     private HashMap<String, ArrayList<String>> selectedMap;
     private boolean blocked = false;
 
     private static int selectedLayer = 0, selectedNumOfTask = 0, selectedType = 0, selectedGridSet = 0, selectedFormat = 0, selectedZoomStart = 0, selectedZoomStop = 0;
+    private static boolean isChecked = false;
+    private static String selectedMinX, selectedMinY, selectedMaxX,selectedMaxY;
+    private static int[] selectedMP = {-1, -1, -1, -1, -1};
     private static boolean isGroup = false;
+    private static boolean isRestoring = false;
 
     private MainApp mainApp;
 
@@ -114,21 +118,33 @@ public class LayersController {
 
 
     public void restoreState(){
+        isRestoring = true;
         if(isGroup){
             groupTableView.getSelectionModel().select(selectedLayer);
-        }else{
+        }else
             layerTableView.getSelectionModel().select(selectedLayer);
-        }
+
         numberOfTasks.getSelectionModel().select(selectedNumOfTask);
         typeOfOperation.getSelectionModel().select(selectedType);
         gridSet.getSelectionModel().select(selectedGridSet);
         format.getSelectionModel().select(selectedFormat);
         zoomStart.getSelectionModel().select(selectedZoomStart);
         zoomStop.getSelectionModel().select(selectedZoomStop);
-    }
+        checkBox.setSelected(isChecked);
+        check();
+        if(isChecked){
+            minX.setText(selectedMinX);
+            minY.setText(selectedMinY);
+            maxX.setText(selectedMaxX);
+            maxY.setText(selectedMaxY);
+        }
+        for(int i = 0; i < selectedMP.length; i++){
+            int selectedOption;
+            if((selectedOption = selectedMP[i]) != -1)
+                listOfBoxes.get(i).getSelectionModel().select(selectedOption);
+        }
+        isRestoring = false;
 
-    public void saveState(){
-        selectedNumOfTask = numberOfTasks.getSelectionModel().getSelectedIndex();
     }
 
     private void showChoice(Layer layer) {
@@ -159,16 +175,18 @@ public class LayersController {
                     ChoiceBox<String> c = listOfBoxes.get(counter);
                     c.setItems(KeyValue.getValue());
                     c.setVisible(true);
-                    c.getSelectionModel().selectFirst();
+                    if(isRestoring && selectedMP[counter] != -1) {
+                        c.getSelectionModel().select(selectedMP[counter]);
+                    }else{
+                        c.getSelectionModel().selectFirst();
+                        selectedMP[counter] = 0;
+                    }
                     c.setDisable(false);
                     counter++;
                 }
                 modifiableParameters.setVisible(true);
                 scrollPane.setVisible(true);
-                /*if(layerParameters.size() == 1){
-                    ObservableList<String> ll = layerParameters.get("parameter_STYLES");
-                    if(ll.size() == 1);
-                        modifiableParam1.setDisable(true);}*/ //Work not properly
+
             }else{
                 disableModParams();
             }
@@ -183,22 +201,17 @@ public class LayersController {
             disableModParams();
         }
     }
-
     private void disableModParams(){
         modifiableParameters.setVisible(false);
         scrollPane.setVisible(false);
-        ObservableList<String> nul = FXCollections.observableArrayList("");
-        for(ChoiceBox c : listOfBoxes){
-          c.setItems(nul);
-          c.setVisible(false);
-        }
-        for (Label l : listOfLabels){
-            l.setText("");
-            l.setVisible(false);
-        }
+        clearModParams();
     }
     private void clearModParams(){
         ObservableList<String> nul = FXCollections.observableArrayList("");
+        for(int i = 0; i < selectedMP.length; i++){
+            if(!isRestoring)
+                selectedMP[i] = -1;
+        }
         for(ChoiceBox c : listOfBoxes){
             c.setItems(nul);
             c.setVisible(false);
@@ -250,9 +263,7 @@ public class LayersController {
             listOfBoxes.add(modifiableParam5);
         }
         refresh();
-        gridSet.getSelectionModel().selectedItemProperty().addListener(
-               ((observable, oldValue, newValue) -> setMaxBounds(newValue))
-        );
+
     }
 
     public void setMainApp(MainApp mainApp) {
@@ -298,7 +309,20 @@ public class LayersController {
         if(buffer.equals("")) task.setMinX(null);
         else task.setMaxY(Double.parseDouble(buffer));
 
-        task.send();
+        String resultOfSending = task.send();
+        switch (resultOfSending){
+            case "200" : responseCodeLabel.setTextFill(Color.GREEN);
+                         responseCodeLabel.setText("Task created");
+                         break;
+            case "401" : responseCodeLabel.setTextFill(Color.RED);
+                         responseCodeLabel.setText("Not authorized");
+                         break;
+            case "No cookies" : responseCodeLabel.setTextFill(Color.RED);
+                                responseCodeLabel.setText("Not authorized");
+                                break;
+            default    : responseCodeLabel.setTextFill(Color.RED);
+                         responseCodeLabel.setText("Error");
+        }
         System.out.println("New Task Created");
     }
 
@@ -306,7 +330,6 @@ public class LayersController {
     private void refresh(){
         column1.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
         column.setCellValueFactory(cellData -> cellData.getValue().layerNameProperty());
-        //showChoice(null);
         layerTableView.getSelectionModel().selectedItemProperty().addListener(
                 ((observable, oldValue, newValue) -> showLayerChoice(newValue))
         );
@@ -314,24 +337,50 @@ public class LayersController {
                 ((observable, oldValue, newValue) -> showGroupChoice(newValue))
         );
         numberOfTasks.getSelectionModel().selectedItemProperty().addListener(
-                ((observable, oldValue, newValue) ->  selectedNumOfTask = numberOfTasks.getSelectionModel().getSelectedIndex())
+                ((observable, oldValue, newValue) ->  saveNumOfTasks())
         );
         typeOfOperation.getSelectionModel().selectedItemProperty().addListener(
-                ((observable, oldValue, newValue) ->  selectedType = typeOfOperation.getSelectionModel().getSelectedIndex())
+                ((observable, oldValue, newValue) ->  saveType())
         );
         gridSet.getSelectionModel().selectedItemProperty().addListener(
-                ((observable, oldValue, newValue) ->  selectedGridSet = gridSet.getSelectionModel().getSelectedIndex())
+                ((observable, oldValue, newValue) ->  saveGridSet(newValue))
         );
         format.getSelectionModel().selectedItemProperty().addListener(
-                ((observable, oldValue, newValue) ->  selectedFormat = format.getSelectionModel().getSelectedIndex())
+                ((observable, oldValue, newValue) ->  saveFormat())
         );
         zoomStart.getSelectionModel().selectedItemProperty().addListener(
-                ((observable, oldValue, newValue) ->  selectedZoomStart = zoomStart.getSelectionModel().getSelectedIndex())
+                ((observable, oldValue, newValue) ->  saveZoomStart())
         );
         zoomStop.getSelectionModel().selectedItemProperty().addListener(
-                ((observable, oldValue, newValue) ->  selectedZoomStop = zoomStop.getSelectionModel().getSelectedIndex())
+                ((observable, oldValue, newValue) ->  saveZoomStop())
         );
-
+        minX.textProperty().addListener(
+                (((observable, oldValue, newValue) -> saveMinX(newValue)))
+        );
+        minY.textProperty().addListener(
+                (((observable, oldValue, newValue) -> saveMinY(newValue)))
+        );
+        maxX.textProperty().addListener(
+                (((observable, oldValue, newValue) -> saveMaxX(newValue)))
+        );
+        maxY.textProperty().addListener(
+                (((observable, oldValue, newValue) -> saveMaxY(newValue)))
+        );
+        modifiableParam1.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) -> saveMP1())
+        );
+        modifiableParam2.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) -> saveMP2())
+        );
+        modifiableParam3.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) -> saveMP3())
+        );
+        modifiableParam4.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) -> saveMP4())
+        );
+        modifiableParam4.getSelectionModel().selectedItemProperty().addListener(
+                ((observable, oldValue, newValue) -> saveMP5())
+        );
     }
 
     @FXML
@@ -341,13 +390,69 @@ public class LayersController {
             minY.setDisable(false);
             maxX.setDisable(false);
             maxY.setDisable(false);
+            isChecked = true;                 //saving state of checkBox for restoring
         }
         else{
             minX.setDisable(true);
             minY.setDisable(true);
             maxX.setDisable(true);
             maxY.setDisable(true);
+            isChecked = false;                //saving state of checkBox for restoring
             setMaxBounds(gridSet.getValue());
         }
     }
+
+    private void saveNumOfTasks(){
+        if(!isRestoring) selectedNumOfTask = numberOfTasks.getSelectionModel().getSelectedIndex();
+    }
+    private void saveType(){
+        if(!isRestoring) selectedType = typeOfOperation.getSelectionModel().getSelectedIndex();
+    }
+    private void saveGridSet(String newValue){
+        setMaxBounds(newValue);
+        if(!isRestoring) selectedGridSet = gridSet.getSelectionModel().getSelectedIndex();
+    }
+    private void saveFormat(){
+        if(!isRestoring) selectedFormat = format.getSelectionModel().getSelectedIndex();
+    }
+    private void saveZoomStart(){
+        if(!isRestoring) selectedZoomStart = zoomStart.getSelectionModel().getSelectedIndex();
+    }
+    private void saveZoomStop(){
+        if(!isRestoring) selectedZoomStop = zoomStop.getSelectionModel().getSelectedIndex();
+    }
+    private void saveMinX(String newValue){
+        if(!isRestoring) selectedMinX = newValue;
+    }
+    private void saveMinY(String newValue){
+        if(!isRestoring) selectedMinY = newValue;
+    }
+    private void saveMaxX(String newValue){
+        if(!isRestoring) selectedMaxX = newValue;
+    }
+    private void saveMaxY(String newValue){
+        if(!isRestoring) selectedMaxY = newValue;
+    }
+    private void saveMP1(){
+        if(!isRestoring) {
+            selectedMP[0] = modifiableParam1.getSelectionModel().getSelectedIndex();
+        }
+    }
+    private void saveMP2(){
+        if(!isRestoring)
+            selectedMP[1] = modifiableParam2.getSelectionModel().getSelectedIndex();
+    }
+    private void saveMP3(){
+        if(!isRestoring)
+            selectedMP[2] = modifiableParam3.getSelectionModel().getSelectedIndex();
+    }
+    private void saveMP4(){
+        if(!isRestoring)
+            selectedMP[3] = modifiableParam4.getSelectionModel().getSelectedIndex();
+    }
+    private void saveMP5(){
+        if(!isRestoring)
+            selectedMP[4] = modifiableParam5.getSelectionModel().getSelectedIndex();
+    }
+
 }

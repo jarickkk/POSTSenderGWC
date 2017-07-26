@@ -3,25 +3,17 @@ package org.infotechgroup.ps.model;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.io.*;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.infotechgroup.ps.view.ConnectController;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
-
-/**
- * Created by User on 10.07.2017.
- */
 
 public class GeoConnect {
 
@@ -42,7 +34,6 @@ public class GeoConnect {
     private static ObservableList<TaskOnGWC> tasksList;
     private static ArrayList<String> listOfLayersHrefs = new ArrayList<>();
     private static FileOutputStream logOutputStream;
-    private static String result;
 
     private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36";
 
@@ -65,8 +56,8 @@ public class GeoConnect {
         CookieHandler.setDefault(new CookieManager());
 
         logOutputStream = new FileOutputStream(LOGFILE, true);
-        //System.setOut(new PrintStream(logOutputStream));
-        //System.setErr(new PrintStream(logOutputStream));
+        System.setOut(new PrintStream(logOutputStream));
+        System.setErr(new PrintStream(logOutputStream));
 
         if(!HOST.startsWith("http://")) HOST = "http://" + HOST;
         String URLink = HOST + "/geoserver/web/";                                                                            //URLink для получения первичного cookies  с сессией
@@ -79,26 +70,36 @@ public class GeoConnect {
 
         System.out.println(HOST + "\n" + URLink + "\n" + GWCLink);
 
-        result = "No connection";
+        String result;
 
-                    GeoConnect.getInstance().getPageContent(URLink);                                                                                  // Посылаем GET запрос для получения сессии
-                    GeoConnect.getInstance().sendPost(loginGS, postParams);                                                                            // отправляем POST запрос для аутентификации
-                    fillLayersList();
-                    if(layersAvailable)
-                        result = "Connected to " + HOST;
+        String isServerAvailable = GeoConnect.getInstance().getServerAndSetCookies(URLink);  // Посылаем GET запрос для получения сессии
+        if( isServerAvailable.equals("200"))
+            result = "Connected to " + HOST;
+        else {
+            result = isServerAvailable;
+            return result;
+        }
+        GeoConnect.getInstance().sendPost(loginGS, postParams);                                     // отправляем POST запрос для аутентификации
+        String isAuthorizedOnServer = GeoConnect.getInstance().getPageAuth(GWCREST+"/layers");      //Проверяем авторизацию
+        fillLayersList();
 
+        switch(isAuthorizedOnServer.substring(0,3)){
+            case "200" : result += "\n" + "Authorized";
+            break;
+            case "401" : result += "\n" + "Not authorized: Wrong login/password?";
+            break;
+            default : result += "\n" + "Not authorized: Other Errors";
+        }
 
+        if(layersAvailable)
+            result += "\nLayers are available";
 
-
-        //String layersLink = HOST + "/geoserver/web/wicket/bookmarkable/org.geoserver.web.data.layer.LayerPage";
-        //String res = this.getPageAuth(layersLink);                                                                   //метод GET после авторизации
-        //System.out.println(res);
         System.out.flush();
         System.err.flush();
         return result;
     }
 
-    boolean setLayerToCache( Task task) throws Exception{
+    String setLayerToCache( Task task) throws Exception{
         URL link = new URL(GWCLink + task.getLayerName());
         String postParams = setPostParams(task);
         System.out.println(link.toString());
@@ -118,7 +119,7 @@ public class GeoConnect {
 
         if(this.cookies != null && !this.cookies.isEmpty())
             connection.addRequestProperty("Cookie", this.cookies.get(0));
-        else return false;
+        else return "No cookies";
 
         connection.setRequestProperty("Upgrade-Insecure-Requests" , "1");
         connection.setRequestProperty("User-Agent", USER_AGENT);
@@ -135,7 +136,8 @@ public class GeoConnect {
 
         int responseCode = connection.getResponseCode();
         System.out.println(responseCode);
-        return true;
+
+        return "" + responseCode;
     }               //POST
 
     public void killAll() throws Exception{
@@ -220,7 +222,7 @@ public class GeoConnect {
         System.out.println(responseCode);
     }
 
-    private void sendPost(String url, String postParams) throws Exception {
+    private String sendPost(String url, String postParams) throws Exception {
 
         URL obj = new URL(url);
         connection = (HttpURLConnection) obj.openConnection();
@@ -239,7 +241,7 @@ public class GeoConnect {
 
         if(this.cookies != null && !this.cookies.isEmpty())
             connection.addRequestProperty("Cookie", this.cookies.get(0));
-        else return;
+        else return "Not authorized";
 
         connection.setRequestProperty("Upgrade-Insecure-Requests" , "1");
         connection.setRequestProperty("User-Agent", USER_AGENT);
@@ -255,6 +257,9 @@ public class GeoConnect {
         connectionOut.close();
 
         int responseCode = connection.getResponseCode();            //DO NOT delete this
+        if(responseCode == 200)
+            return "Authorized";
+        return "Not authorized";
     }
 
     private String sendTaskPost(String url, String postParams) throws Exception {
@@ -302,27 +307,32 @@ public class GeoConnect {
         return response.toString();
     }
 
-    private void getPageContent(String url) throws Exception {
+    private String getServerAndSetCookies(String url) throws Exception {
+        try {
+            URL obj = new URL(url);
+            connection = (HttpURLConnection) obj.openConnection();
+            //connection.setConnectTimeout(TIMEOUT);
 
-        URL obj = new URL(url);
-        connection = (HttpURLConnection) obj.openConnection();
-        //connection.setConnectTimeout(TIMEOUT);
-
-        connection.setRequestMethod("GET");
-        connection.setUseCaches(false);
-        connection.setRequestProperty("User-Agent", USER_AGENT);
-        connection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+            connection.setRequestMethod("GET");
+            connection.setUseCaches(false);
+            connection.setRequestProperty("User-Agent", USER_AGENT);
+            connection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+            connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 
 
-        setCookies(connection.getHeaderFields().get("Set-Cookie"));                                                 // Get the response cookies
+            setCookies(connection.getHeaderFields().get("Set-Cookie"));                                                 // Get the response cookies
+
+            return "" + connection.getResponseCode();
+        }catch (SocketException se){
+            System.err.println(se.getClass().getSimpleName() + "\n" + se.getMessage() + "\n" + se.getCause());
+            return se.getMessage();
+        }
 
     }
 
     private String getFormParams() throws UnsupportedEncodingException {
-        String post = "username=" + USERNAME + "&password=" + PASSWORD;
-        //System.out.println(post);
-        return post;
+
+        return "username=" + USERNAME + "&password=" + PASSWORD;
     }
 
     private String getPageAuth(String url) throws Exception{         //GET запрос после авторизации (уже имеются cookies)
@@ -348,14 +358,15 @@ public class GeoConnect {
             return "";
         }
 
-        //int responseCode = connection.getResponseCode();
-        //System.out.print("\nGET request to URLink : " + url);
-        //System.out.println("Response Code: " + responseCode);
-
+        int responseCode = connection.getResponseCode();
+        StringBuilder response = new StringBuilder();
+        if(responseCode != 200)
+            return ""+responseCode;
+        else
+            response.append("200");
         BufferedReader in =
                 new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String inputLine;
-        StringBuilder response = new StringBuilder();
 
         while ((inputLine = in.readLine()) != null) {
             response.append(inputLine);
@@ -379,7 +390,7 @@ public class GeoConnect {
         HashMap<String, String> h = task.getModParameters();
         if(h != null && h.size() > 0){
             for(Map.Entry<String, String> pair : h.entrySet()){
-                builder.append("&parameter_"+pair.getKey()+"=").append(pair.getValue());
+                builder.append("&parameter_").append(pair.getKey()).append("=").append(pair.getValue());
             }
         }
         builder.append("&minX=");
@@ -396,16 +407,14 @@ public class GeoConnect {
     private void fillListsOfLayersGroups(){
         if(listOfLayersHrefs.size() > 0){
             for(String s : listOfLayersHrefs){
-                boolean ok = true;
-                if(ok) {
-                    Layer newL = new Layer(s);
-                    setUpLayersFields(newL);
-                    if(newL.isGroup()){
-                        groupsList.add(newL);
-                    }else {
-                        layersList.add(newL);
-                    }
+                Layer newL = new Layer(s);
+                setUpLayersFields(newL);
+                if(newL.isGroup()){
+                    groupsList.add(newL);
+                }else {
+                    layersList.add(newL);
                 }
+
             }
         }
     }
@@ -433,6 +442,8 @@ public class GeoConnect {
 
     private void setUpLayersFields(Layer l){
         String layerURL = l.getHref();
+        if(layerURL.equals("Non"))
+            return;
         try {
             String pageResultXML = getPageAuth(layerURL);
             Document xml = Jsoup.parse(pageResultXML, "", Parser.xmlParser());             //special XML-parser
@@ -441,7 +452,7 @@ public class GeoConnect {
             System.out.print(l.getLayerName() + " = ");
 
             String layerHTMLURL = HOST + "/geoserver/gwc/rest/seed/" + l.getLayerName();        //get page with other info
-            String pageResultHTML = getPageAuth(layerHTMLURL);//TODO: this is KOSTYL`
+            String pageResultHTML = getPageAuth(layerHTMLURL);   //TODO: this is KOSTYL`
             pageResultXML = getPageAuth(layerURL);
             xml = Jsoup.parse(pageResultXML, "", Parser.xmlParser());
 
@@ -561,7 +572,7 @@ public class GeoConnect {
         }
     }
 
-    private ObservableList parseForTasksInGWC(String res){
+    private ObservableList<TaskOnGWC> parseForTasksInGWC(String res){
         ObservableList<TaskOnGWC> resultList = FXCollections.observableArrayList();
 
         Document html = Jsoup.parse(res);
@@ -597,7 +608,7 @@ public class GeoConnect {
         return resultList;
     }
 
-    public ObservableList getTasksList(){
+    public ObservableList<TaskOnGWC> getTasksList(){
         return tasksList;
     }
 
@@ -649,97 +660,5 @@ public class GeoConnect {
         GeoConnect.HOST = HOST;
     }
 
-
-
-
-
-     private ArrayList<String> parseForGroups(String res){
-        ArrayList<String> newList = new ArrayList<>();
-        Document html = Jsoup.parse(res);
-
-        Elements liS = html.select("li");
-        if(liS.size() <= 0) {
-            newList.add("No available groups");
-            layersAvailable = false;
-        }else{
-            for(Element li : liS){
-                String string = li.text().trim();
-                System.out.println(string);
-                newList.add(string);
-            }
-            layersAvailable = true;
-
-        }
-        return newList;
-    }
-
-    private void setUpLayersFieldsOld(Layer l) {
-        String layerURL = HOST + "/geoserver/gwc/rest/seed/" + l.getLayerName();
-        try {
-            String pageResult = getPageAuth(layerURL);
-
-            //System.out.println(pageResult);
-            Document html = Jsoup.parse(pageResult);
-
-            Elements tbodyS = html.select("tbody");
-            Elements rows;
-            if(tbodyS.size() <= 0)
-                return;
-            Element tbody = tbodyS.get(1);
-
-            if(tbody.select("tr").select("td").first().text().equals("Id"))
-                tbody = tbodyS.get(2);
-            rows = tbody.select("tr");
-
-            for (int zz = 0; zz < 6; zz++) {
-                ObservableList<String> resultList = FXCollections.observableArrayList();
-                Elements options = rows.get(zz).select("select").select("option");
-                for(Element option : options){
-                    resultList.add(option.val());
-                }
-                switch (zz){
-                    case 0 : l.setNumberOfTasks(resultList);
-                        break;
-                    case 1 : l.setTypeOfOperation(resultList);
-                        break;
-                    case 2 : l.setGridSet(resultList);
-                        break;
-                    case 3 : l.setFormat(resultList);
-                        break;
-                    case 4 : l.setZoomStart(resultList);
-                        break;
-                    case 5 : l.setZoomStop(resultList);
-                }
-            }
-            if (rows.size() > 8) {
-                ObservableList<String> resultList = FXCollections.observableArrayList();
-                Elements options = rows.get(6).select("select").select("option");
-                for(Element option : options) resultList.add(option.val());
-                //l.setParameters(resultList);
-            }
-            Elements ulS = html.select("ul");
-            if(ulS.size() >= 3){
-                Elements liS = ulS.get(2).select("li");
-                HashMap<String, ArrayList<String>> hash = new HashMap<>();
-                for (Element li : liS) {
-                    String s = "";
-                    ArrayList<String> list = new ArrayList<>();
-                    String[] arr = li.text().split(":");
-
-                    s += arr[0]+":"+arr[1];
-                    arr = arr[2].trim().split(",");
-                    for (int yy = 0; yy < 4; yy++) {
-                        list.add(arr[yy]);
-                    }
-                    hash.put(s, list);
-                }
-                l.setMaxBoundsText(hash);
-            }
-            l.setFilled(true);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
 }

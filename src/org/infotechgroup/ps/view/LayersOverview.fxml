@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="1500.0" prefHeight="1000.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.infotechgroup.ps.view.LayersController">
+<AnchorPane maxHeight="1500.0" prefHeight="1000.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.infotechgroup.ps.view.LayersController">
    <children>
       <SplitPane dividerPositions="0.37" layoutX="129.0" layoutY="83.0" prefHeight="500.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
@@ -49,17 +49,17 @@
                      </font>
                   </Label>
                   <Label layoutX="12.0" layoutY="44.0" text="Number of tasks to use" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="44.0" />
-                  <ChoiceBox fx:id="numberOfTasks" layoutX="150.0" layoutY="36.0" prefWidth="150.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="40.0" />
+                  <ChoiceBox fx:id="numberOfTasks" layoutX="150.0" layoutY="36.0" prefWidth="150.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="40.0" />
                   <Label layoutX="11.0" layoutY="84.0" text="Type of operation" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="84.0" />
-                  <ChoiceBox fx:id="typeOfOperation" layoutX="150.0" layoutY="73.0" prefWidth="150.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="80.0" />
+                  <ChoiceBox fx:id="typeOfOperation" layoutX="150.0" layoutY="73.0" prefWidth="150.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="80.0" />
                   <Label layoutX="41.0" layoutY="124.0" text="Grid Set" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="124.0" />
-                  <ChoiceBox fx:id="gridSet" layoutX="150.0" layoutY="114.0" prefWidth="150.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="120.0" />
+                  <ChoiceBox fx:id="gridSet" layoutX="150.0" layoutY="114.0" prefWidth="150.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="120.0" />
                   <Label layoutX="25.0" layoutY="130.0" text="Format" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="164.0" />
                   <Label layoutX="5.0" layoutY="204.0" text="Zoom start" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="204.0" />
-                  <ChoiceBox fx:id="format" layoutX="150.0" layoutY="155.0" prefWidth="150.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="160.0" />
+                  <ChoiceBox fx:id="format" layoutX="150.0" layoutY="155.0" prefWidth="150.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="160.0" />
                   <Label layoutX="25.0" layoutY="210.0" text="Zoom stop" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="244.0" />
-                  <ChoiceBox fx:id="zoomStart" layoutX="150.0" layoutY="199.0" prefWidth="150.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="200.0" />
-                  <ChoiceBox fx:id="zoomStop" layoutX="150.0" layoutY="241.0" prefWidth="150.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="240.0" />
+                  <ChoiceBox fx:id="zoomStart" layoutX="150.0" layoutY="199.0" prefWidth="150.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="200.0" />
+                  <ChoiceBox fx:id="zoomStop" layoutX="150.0" layoutY="241.0" prefWidth="150.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="240.0" />
                   <Label layoutX="10.0" layoutY="280.0" text="Bounding box" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="280.0" />
                   <CheckBox fx:id="checkBox" layoutX="103.0" layoutY="280.0" maxWidth="200.0" mnemonicParsing="false" onAction="#check" prefWidth="200.0" text="Custom values" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="60.0" AnchorPane.topAnchor="280.0" />
                   <Label layoutX="9.0" layoutY="304.0" text="MinX" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="310.0" />
@@ -73,9 +73,9 @@
                   <Label fx:id="modifiableParameters" layoutX="11.0" layoutY="438.0" text="Modifiable Parmeters" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="430.0" />
                   <Button layoutX="33.0" layoutY="563.0" minWidth="80.0" mnemonicParsing="false" onAction="#refresh" prefWidth="80.0" text="Refresh" AnchorPane.bottomAnchor="25.0" AnchorPane.leftAnchor="15.0" />
                   <Button layoutX="109.0" layoutY="563.0" minWidth="80.0" mnemonicParsing="false" onAction="#submit" prefWidth="80.0" text="Submit" AnchorPane.bottomAnchor="25.0" AnchorPane.leftAnchor="110.0" />
-                  <ScrollPane fx:id="scrollPane" hbarPolicy="NEVER" minHeight="150.0" minWidth="270.0" prefWidth="270.0" AnchorPane.bottomAnchor="25.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="420.0">
+                  <ScrollPane fx:id="scrollPane" hbarPolicy="NEVER" minHeight="150.0" minWidth="270.0" prefWidth="320.0" AnchorPane.bottomAnchor="25.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="420.0">
                     <content>
-                      <AnchorPane fx:id="modParamsPane" minWidth="270.0" prefWidth="270.0">
+                      <AnchorPane fx:id="modParamsPane" minWidth="270.0" prefWidth="320.0">
                            <children>
                               <Label fx:id="paramName1" layoutX="15.0" layoutY="13.0" text="Param1" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="19.0" />
                               <ChoiceBox fx:id="modifiableParam1" layoutX="109.0" layoutY="8.0" prefWidth="150.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="15.0" />
@@ -91,6 +91,7 @@
                         </AnchorPane>
                     </content>
                   </ScrollPane>
+                  <Label fx:id="responseCodeLabel" layoutX="15.0" layoutY="920.0" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="15.0" />
                </children></AnchorPane>
         </items>
       </SplitPane>

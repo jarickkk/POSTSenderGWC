@@ -27,11 +27,12 @@ public class Task {
         }
     }
 
-    public void send(){
+    public String send(){
         try {
-            geoConnect.setLayerToCache(this);
+            return geoConnect.setLayerToCache(this);
         }catch (Exception e){
             e.printStackTrace();
+            return "Error";
         }
     }
 

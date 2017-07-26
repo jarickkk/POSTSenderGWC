@@ -17,7 +17,7 @@
       <Label layoutX="60.0" layoutY="181.0" text="Password" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="180.0" />
       <TextField fx:id="password" layoutX="60.0" layoutY="204.0" minWidth="200.0" prefWidth="300.0" promptText="geoserver" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="200.0" />
       <Button defaultButton="true" layoutX="64.0" layoutY="250.0" minHeight="25.0" minWidth="70.0" mnemonicParsing="false" onMousePressed="#pressLoad" onMouseReleased="#connect" prefWidth="100.0" text="Connect" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="250.0" />
-      <Label fx:id="status" layoutX="60.0" layoutY="292.0" textFill="#1ba300" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="300.0" />
+      <Label fx:id="status" layoutX="60.0" layoutY="292.0" textFill="RED" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="300.0" />
       <Button fx:id="disconnect" disable="true" layoutX="129.0" layoutY="250.0" mnemonicParsing="false" onAction="#disconnect" prefWidth="70.0" text="Disonnect" visible="false" AnchorPane.leftAnchor="140.0" AnchorPane.topAnchor="250.0" />
       <PasswordField layoutX="65.0" layoutY="361.0" prefWidth="150.0" promptText="geoserver" visible="false" AnchorPane.leftAnchor="65.0" AnchorPane.topAnchor="361.0" />
       <ProgressIndicator fx:id="loading" layoutX="59.0" layoutY="290.0" prefHeight="40.0" prefWidth="40.0" visible="false" AnchorPane.leftAnchor="60.0" AnchorPane.topAnchor="290.0" />

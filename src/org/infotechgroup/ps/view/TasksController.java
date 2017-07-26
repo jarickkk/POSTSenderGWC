@@ -8,11 +8,6 @@ import org.infotechgroup.ps.MainApp;
 import org.infotechgroup.ps.model.GeoConnect;
 import org.infotechgroup.ps.model.TaskOnGWC;
 
-
-
-/**
- * Created by User on 10.07.2017.
- */
 public class TasksController {
     @FXML
     private TableView<TaskOnGWC> tasksTableView;

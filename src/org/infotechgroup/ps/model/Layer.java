@@ -25,7 +25,7 @@ public class Layer {
         this.href = name;
     }
 
-    public void setLayerName(String layerName) {
+    void setLayerName(String layerName) {
         this.layerName = new SimpleStringProperty(layerName);
     }
 
@@ -109,7 +109,7 @@ public class Layer {
         this.filled = filled;
     }
 
-    public String getHref() {
+    String getHref() {
         return href;
     }
 
@@ -117,11 +117,11 @@ public class Layer {
         this.href = href;
     }
 
-    public boolean isGroup() {
+    boolean isGroup() {
         return isGroup;
     }
 
-    public void setGroup(boolean group) {
+    void setGroup(boolean group) {
         isGroup = group;
     }
 }

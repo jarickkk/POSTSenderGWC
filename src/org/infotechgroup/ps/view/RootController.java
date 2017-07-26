@@ -3,24 +3,35 @@ package org.infotechgroup.ps.view;
 import javafx.fxml.FXML;
 import org.infotechgroup.ps.MainApp;
 
-
-/**
- * Created by User on 11.07.2017.
- */
 public class RootController {
 
+    private static boolean isTabOpen = false;
     private MainApp mainApp;
 
     @FXML
-    private void connectController(){
-        if(mainApp != null)                           //FIXED: tabPane call this method after RootController creating, mainApp is null at that moment
-            mainApp.showConnectOverview();
+    private void connectController() {
+        if (mainApp != null) {                  //FIXED: tabPane call this method after RootController creating, mainApp is null at that moment
+                mainApp.showConnectOverview();
+        }
     }
+
     @FXML
-    private void layersController(){mainApp.showLayersOverview();}
+    private void layersController() {
+        if (!isTabOpen) {
+            mainApp.showLayersOverview();
+            isTabOpen = true;
+        } else
+            isTabOpen = false;
+    }
+
     @FXML
-    private void tasksController(){
-        mainApp.showTasksOverview();}
+    private void tasksController() {
+        if (!isTabOpen) {
+            mainApp.showTasksOverview();
+            isTabOpen = true;
+        }else
+            isTabOpen =false;
+    }
 
     public RootController(){
     }

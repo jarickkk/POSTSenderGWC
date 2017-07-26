@@ -23,7 +23,6 @@ public class MainApp extends Application {
     private Stage primaryStage;
     private BorderPane rootLayout;
     private boolean isTaskView = false;
-    private LayersController layersController;
     private Thread refreshThread ;
 
     @Override
@@ -44,12 +43,9 @@ public class MainApp extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    /**
-     * Init Stage - Base window
-     */
+
     private void initRootLayout() {
         try {
-            // Loading root layersController from .fxml.
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("view/RootLayout.fxml"));
             rootLayout = loader.load();
@@ -66,9 +62,7 @@ public class MainApp extends Application {
             e.printStackTrace();
         }
     }
-    /**
-     * Show List of Layers in LayerOverview
-     */
+
     public void showLayersOverview() {
         try {
             isTaskView = false;
@@ -78,7 +72,7 @@ public class MainApp extends Application {
             rootLayout.setBottom(null);
             rootLayout.setLeft(null);
             rootLayout.setBottom(layersOverview);
-            layersController = loader.getController();
+            LayersController layersController = loader.getController();
             layersController.setMainApp(this);
             layersController.restoreState();
         } catch (IOException e) {
